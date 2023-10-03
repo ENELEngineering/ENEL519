@@ -1,12 +1,15 @@
 /*
  * File:   Timer.c
- * Author: johns
+ * Author: John Santos and Anhela Francees
  *
- * Created on September 25, 2023, 6:47 PM
+ * Created on October 2nd, 2023, 6:47 PM
  */
 
 #include "xc.h"
+#include "Timer.h"
+uint64_t set_clk;
 
+// Time 2 interrupt subroutine.
 void __attribute__((interrupt, no_auto_psv))_T2Interrupt(void) {
     // Clear timer 2 interrupt flag
     IFS0bits.T2IF = 0;
@@ -22,56 +25,48 @@ void __attribute__((interrupt, no_auto_psv))_T2Interrupt(void) {
  * @param: interval is the time in ms to blink the LED.
  */
 void delay_ms(uint16_t time_ms, uint16_t idle_on) {
-     
-    // T2CON Configuration... Start the 16 bit Timer2.
+    // Start the 16 bit Timer2.
     T2CONbits.TON = 1;
-    
-    // Compute PR2
-    PR2 = calculate_pr2(time_ms, 32);
+    // Clearing Timer 2.
+    TMR2 = 0;
+
+    // Compute PR2...convert time_ms to seconds.
+    PR2 = calculate_pr_2(time_ms*1e-3);
     
     Idle();
     return;
 }
 
 void delay_us(uint16_t time_us, uint16_t idle_on) {
-    uint16_t clk = 8;
-    // Configure the clock
-    NewClk(clk); 
-    // T2CON Configuration... Start the timer.
+    // Start the 16 bit Timer2.
     T2CONbits.TON = 1;
-    T2CONbits.TCS = 0;
-    T2CONbits.TSIDL = 0;
-    T2CONbits.TCKPS = 0b00;
-    T2CONbits.T32 = 0;
-   
-    // Compute PR2
-    PR2 = calculate_pr2(time_us, clk);
+    // Clearing Timer 2.
+    TMR2 = 0;
     
-    //while(TMR2 == PR2);
+    // Compute PR2...convert time_us to seconds.
+    //PR2 = calculate_pr_2(time_us*1e-6);
     
-    // Timer 2 Interrupt Configuration
-    // Set priority to level 7.
-    IPC1bits.T2IP = 0b111;
-    // Enable the interrupt.
-    IEC0bits.T2IE = 1;
-    // Set the interrupt flag.
-    IFS0bits.T2IF = 1;     
-     
+    // This just assumes that using this delay passes an 8MHz clock. 
+    // Other methods for convert clock to Hz fails...
+    PR2 = (uint32_t) (time_us * set_clk)/2;
+    
     Idle();
     return;
 }
 
-int calculate_pr2(uint16_t time, uint16_t clk) {
-    uint32_t pr2 = (time * clk)/2;
-    return pr2;
+uint16_t calculate_pr_2(float time) {
+    if (set_clk == 8) { 
+        return (uint16_t) (time * set_clk*1E6)/2;
+    } 
+    return (uint16_t) (time * set_clk*1E3)/2;   
 }
 
-
-void configure_timer_2(void) {
-//    uint16_t clk = 32;
-//    // Configure the clock
-//    NewClk(clk);
+void configure_timer_2(uint16_t clk) {
+    set_clk = clk;
+    // Configure the clock
+    NewClk(clk);
     
+    // T2CON Configuration...
     // Configure the clock source -> 0 is the internal clock fosc/2.
     T2CONbits.TCS = 0;
     // Setting to 0 means to continue the module operation at idle.
@@ -81,15 +76,12 @@ void configure_timer_2(void) {
     // Setting to 0 means Timer2 and Timer3 act as two 16 bit timers.
     T2CONbits.T32 = 0;
     
-    //T2CON = 0b0000001000000001;
-    // Timer 2 Interrupt Configuration
+    // Timer 2 Interrupt Operation
     // Set priority to level 7.
     IPC1bits.T2IP = 0b111;
     // Enable the interrupt.
     IEC0bits.T2IE = 1;
     // Clear the interrupt flag.
-    IFS0bits.T2IF = 0;
-    
+    IFS0bits.T3IF = 0;
+    return;
 }
-
-

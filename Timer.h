@@ -76,8 +76,8 @@ extern "C" {
 
 void delay_ms(uint16_t time_ms, uint16_t idle_on);
 void delay_us(uint16_t time_us, uint16_t idle_on);
-void configure_timer_2(void);
-//extern uint16_t TMR2flag;
+uint16_t calculate_pr_2(float time);
+void configure_timer_2(uint16_t clk);
 
 #endif	/* XC_HEADER_TEMPLATE_H */
 
