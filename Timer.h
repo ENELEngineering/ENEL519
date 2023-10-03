@@ -75,7 +75,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 void delay_sec(uint32_t time_sec);
-void delay_ms(float time_ms, uint16_t idle_on);
+void delay_ms(uint16_t time_ms, uint16_t idle_on);
 void delay_us(uint16_t time_us, uint16_t idle_on);
 uint32_t calculate_pr_2_3(uint32_t time);
 uint16_t calculate_pr_2(float time);

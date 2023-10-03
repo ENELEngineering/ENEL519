@@ -52,7 +52,7 @@ void delay_sec(uint32_t time_sec) {
  * This function blinks the LED at a set time. 
  * @param: interval is the time in ms to blink the LED.
  */
-void delay_ms(float time_ms, uint16_t idle_on) {
+void delay_ms(uint16_t time_ms, uint16_t idle_on) {
     // Start the 16 bit Timer2.
     T2CONbits.TON = 1;
     // Clearing Timer 2.
