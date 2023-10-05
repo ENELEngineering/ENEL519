@@ -98,8 +98,8 @@ int main(void) {
     CNPU1bits.CN1PUE = 1;
 
     // 8MHz clock range = 5us to 16.38 ms.
-    // 500KHz clock range = x to 262.1 ms.
-    // 31KHz clock range = x to 4.095 sec.
+    // 500KHz clock range = 4ms to 262.1 ms.
+    // 31KHz clock range = 51ms to 4.095 sec.
     uint16_t time_delay_s = 1; 
     // Note: NewClk is being called already inside the function call below.
     configure_timer_2_3(32);
