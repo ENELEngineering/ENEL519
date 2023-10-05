@@ -51,17 +51,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=ChangeClk.c main.c UART2.c Timer.c
+SOURCEFILES_QUOTED_IF_SPACED=ChangeClk.c main.c UART2.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/ChangeClk.o ${OBJECTDIR}/main.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/Timer.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/ChangeClk.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/UART2.o.d ${OBJECTDIR}/Timer.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/ChangeClk.o ${OBJECTDIR}/main.o ${OBJECTDIR}/UART2.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/ChangeClk.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/UART2.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/ChangeClk.o ${OBJECTDIR}/main.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/Timer.o
+OBJECTFILES=${OBJECTDIR}/ChangeClk.o ${OBJECTDIR}/main.o ${OBJECTDIR}/UART2.o
 
 # Source Files
-SOURCEFILES=ChangeClk.c main.c UART2.c Timer.c
+SOURCEFILES=ChangeClk.c main.c UART2.c
 
 
 
@@ -107,12 +107,6 @@ ${OBJECTDIR}/UART2.o: UART2.c  .generated_files/flags/default/adf13a48ee3076f0a1
 	@${RM} ${OBJECTDIR}/UART2.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  UART2.c  -o ${OBJECTDIR}/UART2.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/UART2.o.d"      -g -D__DEBUG     -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
 	
-${OBJECTDIR}/Timer.o: Timer.c  .generated_files/flags/default/dfeea6534b73dfea943dd66b8b7c4920bfa8412e .generated_files/flags/default/da39a3ee5e6b4b0d3255bfef95601890afd80709
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/Timer.o.d 
-	@${RM} ${OBJECTDIR}/Timer.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  Timer.c  -o ${OBJECTDIR}/Timer.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/Timer.o.d"      -g -D__DEBUG     -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
-	
 else
 ${OBJECTDIR}/ChangeClk.o: ChangeClk.c  .generated_files/flags/default/a5c0787bf182448248d0096ffd8aa2872a8eb969 .generated_files/flags/default/da39a3ee5e6b4b0d3255bfef95601890afd80709
 	@${MKDIR} "${OBJECTDIR}" 
@@ -131,12 +125,6 @@ ${OBJECTDIR}/UART2.o: UART2.c  .generated_files/flags/default/13dc2bbbd58eb4c3fa
 	@${RM} ${OBJECTDIR}/UART2.o.d 
 	@${RM} ${OBJECTDIR}/UART2.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  UART2.c  -o ${OBJECTDIR}/UART2.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/UART2.o.d"        -g -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
-	
-${OBJECTDIR}/Timer.o: Timer.c  .generated_files/flags/default/98e87a53fb4d4dc297d60c55a11dc3876a4e4658 .generated_files/flags/default/da39a3ee5e6b4b0d3255bfef95601890afd80709
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/Timer.o.d 
-	@${RM} ${OBJECTDIR}/Timer.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  Timer.c  -o ${OBJECTDIR}/Timer.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/Timer.o.d"        -g -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
 	
 endif
 
