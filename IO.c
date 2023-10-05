@@ -64,7 +64,12 @@ void CN_init(void){
     // a certain period of time once a push button is pressed
     // and then enable.
     // Enable the interrupt.
-    IEC1bits.CNIE = 1
+    IEC1bits.CNIE = 1;
+    CNEN1bits.CN0IE = 1;
+    CNEN1bits.CN11IE = 1;
+    CNEN2bits.CN30IE = 1;
+            
+    
     
     
 }
