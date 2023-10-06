@@ -22,10 +22,13 @@ void __attribute__((interrupt, no_auto_psv))_CNInterrupt(void) {
         // TODO: Add filter out of debounce effects.
         if (PORTBbits.RB4 == 0) {
             // IF RB4 press is interrupting.
+            Disp2String("\n\r RB4 pressed\n");
         } else if (PORTAbits.RA4 == 0) {
             // IF RA4 press is interrupting.
+            Disp2String("\n\r RA4 pressed\n");
         } else if (PORTAbits.RA2 == 0) {
             // IF RA2 press is interrupting.
+            Disp2String("\n\r RA2 pressed\n");
         }
     }
     // Clear the IF flag.
@@ -65,11 +68,9 @@ void CN_init(void){
     // and then enable.
     // Enable the interrupt.
     IEC1bits.CNIE = 1;
+    
     CNEN1bits.CN0IE = 1;
     CNEN1bits.CN11IE = 1;
     CNEN2bits.CN30IE = 1;
             
-    
-    
-    
 }

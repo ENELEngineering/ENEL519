@@ -86,14 +86,17 @@ int main(void) {
 
     // LED on RB8
     TRISBbits.TRISB8 = 0;
-    configure_peripherals();
-
+    
     // Switch clock: 32 for 32kHz, 500 for 500 kHz, 8 for 8MHz 
     NewClk(8); 
+    
+    configure_peripherals();
+    CN_init();
+
 
    while(1)
     {
-       sleep();
+       
     }
    return 0;
 }
