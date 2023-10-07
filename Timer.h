@@ -74,13 +74,13 @@ extern "C" {
 }
 #endif /* __cplusplus */
 
-void configure_peripherals(void);
-void CN_init(void);
-void display_message(void);
-uint16_t check_RB4(void);
-uint16_t check_RA4(void);
-uint16_t check_RA2(void);
-void check_flags(void);
+void delay_sec(uint32_t time_sec);
+void delay_ms(uint16_t time_ms, uint16_t idle_on);
+void delay_us(uint16_t time_us, uint16_t idle_on);
+uint32_t calculate_pr_2_3(uint32_t time);
+uint16_t calculate_pr_2(float time);
+void configure_timer_2_3(uint16_t clk);
+void configure_timer_2(uint16_t clk);
+extern uint16_t TMR3flag;
 
 #endif	/* XC_HEADER_TEMPLATE_H */
-

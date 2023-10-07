@@ -19,6 +19,8 @@
       <itemPath>UART2.h</itemPath>
       <itemPath>IO.c</itemPath>
       <itemPath>IO.h</itemPath>
+      <itemPath>Timer.c</itemPath>
+      <itemPath>Timer.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
