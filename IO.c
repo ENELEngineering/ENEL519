@@ -19,175 +19,72 @@
  */
 
 // Global Variables
-uint16_t previous_RB4_status = 1;
-uint16_t previous_RA4_status = 1;
-uint16_t previous_RA2_status = 1;
-
-uint16_t RB4_INTR_Flag = 0;
-uint16_t RA4_INTR_Flag = 0;
-uint16_t RA2_INTR_Flag = 0;
+volatile uint16_t old_RB4_status = 1, old_RA4_status = 1, old_RA2_status = 1,
+                  new_RB4_status = 1, new_RA4_status = 1, new_RA2_status = 1;
 
 void __attribute__((interrupt, no_auto_psv))_CNInterrupt(void) {
     if (IFS1bits.CNIF == 1) {
         // Should handle debounce effects.
         delay_ms(220, 1);
+        // Assign current status
+        new_RB4_status = PORTBbits.RB4;
+        new_RA4_status = PORTAbits.RA4;
+        new_RA2_status = PORTAbits.RA2;
         
-        if (PORTBbits.RB4 == 0) {
-            RB4_INTR_Flag = 1;
-            RA4_INTR_Flag = 0;
-            RA2_INTR_Flag = 0;
-            // If RB4 press is interrupting.
-            if (PORTBbits.RB4 != previous_RB4_status) {
-                check_flags();
-                uint16_t RA4_status = check_RA4();
-                uint16_t RA2_status = check_RA2();
-                
-                if (RA4_status == 1 && RA2_status == 1) {
-                    Disp2String("\n\r CN1/RB4, CN0/RA4, CN30/RA2 are pressed\n");
-                }
-                else if (RA4_status == 1 && RA2_status == 0) {
-                    Disp2String("\n\r CN1/RB4, CN0/RA4 are pressed\n");
-                }
-                else if (RA4_status == 0 && RA2_status == 1) {
-                    Disp2String("\n\r CN1/RB4, CN30/RA2 are pressed\n");
-                }
-                else if (RA4_status == 0 && RA2_status == 0) {
-                    Disp2String("\n\r CN1/RB4 is pressed\n");
-                }
+        if (new_RB4_status == 0 && old_RB4_status == 1) {
+            // If RB4 press is interrupting.  
+            if (new_RA4_status == 0 && new_RA2_status == 0) {
+                Disp2String("\n\r CN1/RB4, CN0/RA4, CN30/RA2 are pressed\n");
+            }
+            else if (new_RA4_status == 0 && new_RA2_status == 1) {
+                Disp2String("\n\r CN1/RB4, CN0/RA4 are pressed\n");
+            }
+            else if (new_RA4_status == 1 && new_RA2_status == 0) {
+                Disp2String("\n\r CN1/RB4, CN30/RA2 are pressed\n");
+            }
+            else if (new_RA4_status == 1 && new_RA2_status == 1) {
+                Disp2String("\n\r CN1/RB4 is pressed\n");
             }
         } 
-        else if (PORTAbits.RA4 == 0) {
-            RB4_INTR_Flag = 0;
-            RA4_INTR_Flag = 1;
-            RA2_INTR_Flag = 0;
-            // If RA4 press is interrupting.
-            if (PORTAbits.RA4 != previous_RA4_status) {
-                check_flags();
-                uint16_t RB4_status = check_RB4();
-                uint16_t RA2_status = check_RA2();
-                
-                if (RB4_status == 1 && RA2_status == 1) {
-                    Disp2String("\n\r CN1/RB4, CN0/RA4, CN30/RA2 are pressed\n");
-                }
-                else if (RB4_status == 1 && RA2_status == 0) {
-                    Disp2String("\n\r CN1/RB4, CN0/RA4 are pressed\n");
-                }
-                else if (RB4_status == 0 && RA2_status == 1) {
-                    Disp2String("\n\r CN0/RA4, CN30/RA2 are pressed\n");
-                }
-                else if (RB4_status == 0 && RA2_status == 0) {
-                    Disp2String("\n\r CN0/RA4 is pressed\n");
-                }
+        else if (new_RA4_status == 0 && old_RA4_status == 1) {
+            // If RA4 press is interrupting.   
+            if (new_RB4_status == 0 && new_RA2_status == 0) {
+                Disp2String("\n\r CN1/RB4, CN0/RA4, CN30/RA2 are pressed\n");
             }
+            else if (new_RB4_status == 0 && new_RA2_status == 1) {
+                Disp2String("\n\r CN1/RB4, CN0/RA4 are pressed\n");
+            }
+            else if (new_RB4_status == 1 && new_RA2_status == 0) {
+                Disp2String("\n\r CN0/RA4, CN30/RA2 are pressed\n");
+            }
+            else if (new_RB4_status == 1 && new_RA2_status == 1) {
+                Disp2String("\n\r CN0/RA4 is pressed\n");
+            }   
         }
-        else if (PORTAbits.RA2 == 0) {
-            // If RA2 press is interrupting.
-            RB4_INTR_Flag = 0;
-            RA4_INTR_Flag = 0;
-            RA2_INTR_Flag = 1;
-            
-            if (PORTAbits.RA2 != previous_RA2_status) {
-                check_flags();
-                uint16_t RB4_status = check_RB4();
-                uint16_t RA4_status = check_RA4();
-                
-                if (RB4_status == 1 && RA4_status == 1) {
-                    Disp2String("\n\r CN1/RB4, CN0/RA4, CN30/RA2 are pressed\n");
-                }
-                else if (RB4_status == 1 && RA4_status == 0) {
-                    Disp2String("\n\r CN1/RB4, CN30/RA2 are pressed\n");
-                }
-                else if (RB4_status == 0 && RA4_status == 1) {
-                    Disp2String("\n\r CN0/RA4, CN30/RA2 are pressed\n");
-                }
-                else if (RB4_status == 0 && RA4_status == 0) {
-                    Disp2String("\n\r CN30/RA2 is pressed\n");
-                }
+        else if (new_RA2_status == 0 && old_RA2_status == 1) {
+            // If RA2 press is interrupting.            
+            if (new_RB4_status == 0 && new_RA4_status == 0) {
+                Disp2String("\n\r CN1/RB4, CN0/RA4, CN30/RA2 are pressed\n");
+            }
+            else if (new_RB4_status == 0 && new_RA4_status == 1) {
+                Disp2String("\n\r CN1/RB4, CN30/RA2 are pressed\n");
+            }
+            else if (new_RB4_status == 1 && new_RA4_status == 0) {
+                Disp2String("\n\r CN0/RA4, CN30/RA2 are pressed\n");
+            }
+            else if (new_RB4_status == 1 && new_RA4_status == 1) {
+                Disp2String("\n\r CN30/RA2 is pressed\n");
             }
         }
     }
-    previous_RB4_status = PORTBbits.RB4;
-    previous_RA4_status = PORTAbits.RA4;
-    previous_RA2_status = PORTAbits.RA2;
+    old_RB4_status = new_RB4_status;
+    old_RA4_status = new_RA4_status;
+    old_RA2_status = new_RA2_status;
   
     // Clear the IF flag.
     IFS1bits.CNIF = 0;
     Nop();
 }
-
-void check_flags(void) {
-    if (RB4_INTR_Flag == 1) {
-        CNEN1bits.CN11IE = 1;
-        CNEN1bits.CN0IE = 0;
-        CNEN2bits.CN30IE = 0;
-    }
-    
-    if (RA4_INTR_Flag == 1) {
-        CNEN1bits.CN0IE = 1;
-        CNEN1bits.CN11IE = 0;
-        CNEN2bits.CN30IE = 0;
-    }
-    
-    if (RA2_INTR_Flag == 1) {
-        CNEN2bits.CN30IE = 1;
-        CNEN1bits.CN0IE = 0;
-        CNEN1bits.CN11IE = 0;
-    }
-}
-
-void display_message(void) {
-    delay_sec(1);
-    uint16_t RB4_status = check_RB4();
-    uint16_t RA4_status = check_RA4();
-    uint16_t RA2_status = check_RA2();
-    
-    if (RB4_status == 1 && RA4_status == 1 && RA2_status == 1) {
-        Disp2String("\n\r CN1/RB4, CN0/RA4, CN30/RA2 are pressed\n");
-    }
-    else if (RB4_status == 1 && RA4_status == 1 && RA2_status == 0) {
-        Disp2String("\n\r CN1/RB4, CN0/RA4 are pressed\n");
-    }
-    else if (RB4_status == 1 && RA4_status == 0 && RA2_status == 1) {
-        Disp2String("\n\r CN1/RB4, CN30/RA2 are pressed\n");
-    }
-    else if (RB4_status == 1 && RA4_status == 0 && RA2_status == 0) {
-        Disp2String("\n\r CN1/RB4 is pressed\n");
-    }
-    else if (RB4_status == 0 && RA4_status == 1 && RA2_status == 1) {
-        Disp2String("\n\r CN0/RA4, CN30/RA2 are pressed\n");
-    }
-    else if (RB4_status == 0 && RA4_status == 1 && RA2_status == 0) {
-        Disp2String("\n\r CN0/RA4 is pressed\n");
-    }
-    else if (RB4_status == 0 && RA4_status == 0 && RA2_status == 1) {
-        Disp2String("\n\r CN30/RA2 is pressed\n");
-    }
-    previous_RB4_status = PORTBbits.RB4;
-    previous_RA4_status = PORTAbits.RA4;
-    previous_RA2_status = PORTAbits.RA2;
-}
-
-uint16_t check_RB4(void) {
-    if (PORTBbits.RB4 != previous_RB4_status && PORTBbits.RB4 == 0) {
-        return 1;
-    }
-    return 0;
-}
-
-uint16_t check_RA4(void) {
-    if (PORTAbits.RA4 != previous_RA4_status && PORTAbits.RA4 == 0) {
-        return 1;
-    }
-    return 0;
-}
-
-uint16_t check_RA2(void) {
-    if (PORTAbits.RA2 != previous_RA2_status && PORTAbits.RA2 == 0) {
-        return 1;
-    }
-    return 0;
-}
-
 
 /* Peripheral Configuration
  * Configure IO pins as input: TRISxBITS.TRISx# = 1;

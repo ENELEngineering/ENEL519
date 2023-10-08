@@ -76,11 +76,6 @@ extern "C" {
 
 void configure_peripherals(void);
 void CN_init(void);
-void display_message(void);
-uint16_t check_RB4(void);
-uint16_t check_RA4(void);
-uint16_t check_RA2(void);
-void check_flags(void);
 
 #endif	/* XC_HEADER_TEMPLATE_H */
 
