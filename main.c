@@ -88,15 +88,14 @@ int main(void) {
     TRISBbits.TRISB8 = 0;
     
     // Switch clock: 32 for 32kHz, 500 for 500 kHz, 8 for 8MHz 
-    NewClk(8); 
+    NewClk(500); 
     
     configure_peripherals();
     CN_init();
-
-
-   while(1)
-    {
     
-    }
+    while(1)
+        {
+           Idle();
+        }
    return 0;
 }

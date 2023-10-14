@@ -73,7 +73,8 @@ extern "C" {
 #ifdef	__cplusplus
 }
 #endif /* __cplusplus */
-
+void display_single_message(void);
+void display_message(void);
 void configure_peripherals(void);
 void CN_init(void);
 

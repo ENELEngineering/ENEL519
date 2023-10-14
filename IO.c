@@ -5,7 +5,6 @@
  * Created on October 2, 2023, 2:48 PM
  */
 
-
 #include "xc.h"
 #include "IO.h"
 #include "Timer.h"
@@ -19,71 +18,99 @@
  */
 
 // Global Variables
-volatile uint16_t old_RB4_status = 1, old_RA4_status = 1, old_RA2_status = 1,
-                  new_RB4_status = 1, new_RA4_status = 1, new_RA2_status = 1;
+volatile uint16_t old_RB4_status, old_RA4_status, old_RA2_status;
+uint16_t SINGLE_PRESS_Flag, MULTIPLE_PRESS_Flag;
 
 void __attribute__((interrupt, no_auto_psv))_CNInterrupt(void) {
+     
     if (IFS1bits.CNIF == 1) {
         // Should handle debounce effects.
-        delay_ms(220, 1);
-        // Assign current status
-        new_RB4_status = PORTBbits.RB4;
-        new_RA4_status = PORTAbits.RA4;
-        new_RA2_status = PORTAbits.RA2;
-        
-        if (new_RB4_status == 0 && old_RB4_status == 1) {
-            // If RB4 press is interrupting.  
-            if (new_RA4_status == 0 && new_RA2_status == 0) {
-                Disp2String("\n\r CN1/RB4, CN0/RA4, CN30/RA2 are pressed\n");
-            }
-            else if (new_RA4_status == 0 && new_RA2_status == 1) {
-                Disp2String("\n\r CN1/RB4, CN0/RA4 are pressed\n");
-            }
-            else if (new_RA4_status == 1 && new_RA2_status == 0) {
-                Disp2String("\n\r CN1/RB4, CN30/RA2 are pressed\n");
-            }
-            else if (new_RA4_status == 1 && new_RA2_status == 1) {
-                Disp2String("\n\r CN1/RB4 is pressed\n");
+        delay_ms(150, 1);
+        if (PORTBbits.RB4 == 0) {
+            // If RB4 is interrupting
+            if ((old_RA4_status == 1 && PORTAbits.RA4 == 0) || (old_RA2_status == 1 && PORTAbits.RA2 == 0)) {
+                MULTIPLE_PRESS_Flag = 1;   
+                SINGLE_PRESS_Flag = 0;
+            } else if (old_RB4_status == 1) {
+                MULTIPLE_PRESS_Flag = 0;
+                SINGLE_PRESS_Flag = 1;
+            } else {
+                MULTIPLE_PRESS_Flag = 0;
+                SINGLE_PRESS_Flag = 0;
             }
         } 
-        else if (new_RA4_status == 0 && old_RA4_status == 1) {
-            // If RA4 press is interrupting.   
-            if (new_RB4_status == 0 && new_RA2_status == 0) {
-                Disp2String("\n\r CN1/RB4, CN0/RA4, CN30/RA2 are pressed\n");
+        else if (PORTAbits.RA4 == 0) {
+            if ((old_RB4_status == 1 && PORTBbits.RB4 == 0) || (old_RA2_status == 1 && PORTAbits.RA2 == 0)) {
+                MULTIPLE_PRESS_Flag = 1;
+                SINGLE_PRESS_Flag = 0;
+            } else if (old_RA4_status == 1) {
+                MULTIPLE_PRESS_Flag = 0;
+                SINGLE_PRESS_Flag = 1;
+            } else {
+                MULTIPLE_PRESS_Flag = 0;
+                SINGLE_PRESS_Flag = 0;
             }
-            else if (new_RB4_status == 0 && new_RA2_status == 1) {
-                Disp2String("\n\r CN1/RB4, CN0/RA4 are pressed\n");
+        } 
+        else if (PORTAbits.RA2 == 0) {
+            if ((old_RB4_status == 1 && PORTBbits.RB4 == 0) || (old_RA4_status == 1 && PORTAbits.RA4 == 0)) {
+                MULTIPLE_PRESS_Flag = 1;
+                SINGLE_PRESS_Flag = 0;
+            } else if (old_RA2_status == 1) {
+                MULTIPLE_PRESS_Flag = 0;
+                SINGLE_PRESS_Flag = 1;
+            } else {
+                MULTIPLE_PRESS_Flag = 0;
+                SINGLE_PRESS_Flag = 0;
             }
-            else if (new_RB4_status == 1 && new_RA2_status == 0) {
-                Disp2String("\n\r CN0/RA4, CN30/RA2 are pressed\n");
-            }
-            else if (new_RB4_status == 1 && new_RA2_status == 1) {
-                Disp2String("\n\r CN0/RA4 is pressed\n");
-            }   
         }
-        else if (new_RA2_status == 0 && old_RA2_status == 1) {
-            // If RA2 press is interrupting.            
-            if (new_RB4_status == 0 && new_RA4_status == 0) {
-                Disp2String("\n\r CN1/RB4, CN0/RA4, CN30/RA2 are pressed\n");
-            }
-            else if (new_RB4_status == 0 && new_RA4_status == 1) {
-                Disp2String("\n\r CN1/RB4, CN30/RA2 are pressed\n");
-            }
-            else if (new_RB4_status == 1 && new_RA4_status == 0) {
-                Disp2String("\n\r CN0/RA4, CN30/RA2 are pressed\n");
-            }
-            else if (new_RB4_status == 1 && new_RA4_status == 1) {
-                Disp2String("\n\r CN30/RA2 is pressed\n");
+        
+        old_RB4_status = PORTBbits.RB4;
+        old_RA4_status = PORTAbits.RA4;
+        old_RA2_status = PORTAbits.RA2;
+        
+        if (MULTIPLE_PRESS_Flag == 1){
+            display_message();
+        } 
+        else {
+            if (SINGLE_PRESS_Flag == 1) {
+                display_single_message();
             }
         }
     }
-    old_RB4_status = new_RB4_status;
-    old_RA4_status = new_RA4_status;
-    old_RA2_status = new_RA2_status;
-  
+    
     // Clear the IF flag.
     IFS1bits.CNIF = 0;
+    
+    MULTIPLE_PRESS_Flag = 0;
+    SINGLE_PRESS_Flag = 0;
     Nop();
+}
+
+void display_single_message(void) {
+    if (PORTBbits.RB4 == 0) {
+        Disp2String("\n\r CN1/RB4 is pressed\n");
+    }
+    else if (PORTAbits.RA4 == 0) {
+        Disp2String("\n\r CN0/RA4 is pressed\n");   
+    }
+    else if (PORTAbits.RA2 == 0) {
+        Disp2String("\n\r CN30/RA2 is pressed\n");
+    }
+}
+
+void display_message(void) {
+    if (PORTBbits.RB4 == 0 && PORTAbits.RA4 == 0 && PORTAbits.RA2 == 0) {
+        Disp2String("\n\r CN1/RB4, CN0/RA4, CN30/RA2 are pressed\n");
+    }
+    else if (PORTBbits.RB4 == 0 && PORTAbits.RA4 == 0 && PORTAbits.RA2 == 1) {
+        Disp2String("\n\r CN1/RB4, CN0/RA4 are pressed\n");
+    }
+    else if (PORTBbits.RB4 == 0 && PORTAbits.RA4 == 1 && PORTAbits.RA2 == 0) {
+        Disp2String("\n\r CN1/RB4, CN30/RA2 are pressed\n");
+    }
+    else if (PORTBbits.RB4 == 1 && PORTAbits.RA4 == 0 && PORTAbits.RA2 == 0) {
+        Disp2String("\n\r CN0/RA4, CN30/RA2 are pressed\n");
+    }
 }
 
 /* Peripheral Configuration
@@ -111,14 +138,14 @@ void configure_peripherals(void) {
  */
 void CN_init(void) {
     // Set the interrupt priority to highest priority.
-    IPC4bits.CNIP = 0b111;
+    IPC4bits.CNIP = 0b001;
 
     // To handle debounce effects, disable the interrupt for
     // a certain period of time once a push button is pressed
-    // and then enable.
-    // Enable the interrupt.
-    IEC1bits.CNIE = 1;
+    // and then enable.    
     CNEN1bits.CN0IE = 1;
     CNEN1bits.CN11IE = 1;
     CNEN2bits.CN30IE = 1;
+    // Enable the interrupt.
+    IEC1bits.CNIE = 1;
 }
