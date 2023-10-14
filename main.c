@@ -88,18 +88,16 @@ int main(void) {
 
     // LED on RB8
     TRISBbits.TRISB8 = 0;
-
-    // Configure push button pins (RA2, RA4, RB4) as inputs.
+    
+    // Switch clock: 32 for 32kHz, 500 for 500 kHz, 8 for 8MHz 
+    NewClk(500); 
+    
     configure_peripherals();
     CN_init();
-
-   while(1)
-    {
-       Idle();
-       //if (ISR_flag == 1) {
-       //    ISR_flag = 0;
-          
-       //}
-    }
+    
+    while(1)
+        {
+           Idle();
+        }
    return 0;
 }
