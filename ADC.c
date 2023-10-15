@@ -27,15 +27,16 @@ unsigned int do_ADC(void) {
     // Channel 0 positive input select for MUX A multiplexer setting bits.
     AD1CHSbits.CH0SA = 0b0101; // Channel 0 positive input is AN5.
     // Analog input pin configuration control bits.
-    AD1PCFG = 0b0000000000000000;
+    AD1PCFG = AD1PCFG & 0b0000001111000111;
     // A/D input pin scan selection bits
-    AD1CSSL = 0b0000000000000000;
+    AD1CSSL = AD1CSSL & 0b0000001111000111;
     
     /*---------- ADC SAMPLING AND CONVERSION - CAN BE A DIFFERENT FUNCTION ----------*/
     
     AD1CON1bits.SAMP = 1; // Start Sampling, Conversion starts automatically after SSRC and SAMP settings.
     while(AD1CON1bits.DONE==0) {}
-    ADCvalue = ADC1BUFO; // ADC output is stored in ADC1BUFO as this point.
+    
+    ADCvalue = ADC1BUF0; // ADC output is stored in ADC1BUF0 as this point.
     AD1CON1bits.SAMP = 0; // Stop sampling
     AD1CON1bits.ADON=0; // Turn off ADC, ADC value stored in ADC1BUFO.
     return (ADCvalue); // Returns 10 bit ADC output stored in ADC1BIFO to calling function.
@@ -56,7 +57,6 @@ void configure_ADC_AD1CON1(void) {
     AD1CON1bits.ASAM = 0;
     // Clear the A/D Conversion status bit.
     AD1CON1bits.DONE = 1; // A/D conversion is done.
-    
 }
 
 /*
@@ -85,6 +85,6 @@ void configure_ADC_AD1CON3(void) {
     AD1CON3bits.ADRC = 0; // Use the system clock, use ADC in sleep mode.
     // Auto Sample Time bits.
     AD1CON3bits.SAMC = 0b11111; // Slowest sampling time = 31*2/fclk.
-    
-            
+    // A/D Conversion Clock Select bits
+    AD1CON3bits.ADCS = 0b11111;
 }

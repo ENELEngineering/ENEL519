@@ -17,6 +17,7 @@
 #include <errno.h>
 #include "ChangeClk.h"
 #include "UART2.h"
+#include "ADC.h"
 
 //// CONFIGURATION BITS ////
 
@@ -105,6 +106,8 @@ int main(void) {
     // Switch clock: 32 for 32kHz, 500 for 500 kHz, 8 for 8MHz 
     NewClk(8); 
      
-    while(1) {}
+    while(1) {
+        Disp2Hex(do_ADC());
+    }
     return 0;
 }
