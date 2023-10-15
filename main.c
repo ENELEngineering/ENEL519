@@ -103,56 +103,8 @@ int main(void) {
     CNPU1bits.CN1PUE = 1;
      
     // Switch clock: 32 for 32kHz, 500 for 500 kHz, 8 for 8MHz 
-    NewClk(32); 
+    NewClk(8); 
      
-    while(1)
-     {
-        if (PORTAbits.RA2 == 1 && PORTAbits.RA4 == 1 && PORTBbits.RB4 == 1) {
-            Disp2String("\n\r No presses\n");
-        } else {
-            
-            LATBbits.LATB8 = 1;
-            for (int i=0; i<32000;i++) { }
-            LATBbits.LATB8 = 0;
-            for (int i=0; i<32000;i++) { }
-            
-           if (PORTAbits.RA2 == 0 && PORTAbits.RA4 == 0 && PORTBbits.RB4 == 0) {
-               Disp2String("\n\r RA2, RB4, and RA4 pressed\n");
-           }
-           else if (PORTAbits.RA2 == 0 && PORTAbits.RA4 == 0 && PORTBbits.RB4 == 1) {
-               Disp2String("\n\r RA2 and RA4 pressed\n");
-           }
-           else if (PORTAbits.RA2 == 0 && PORTAbits.RA4 == 1 && PORTBbits.RB4 == 0) {
-               Disp2String("\n\r RA2 and RB4 pressed\n");
-           }
-           else if (PORTAbits.RA2 == 0 && PORTAbits.RA4 == 1 && PORTBbits.RB4 == 1) {
-               Disp2String("\n\r RA2 pressed\n");
-           }
-           else if (PORTAbits.RA2 == 1 && PORTAbits.RA4 == 0 && PORTBbits.RB4 == 0) {
-               Disp2String("\n\r RA4 and RB4 pressed\n");
-           }
-           else if (PORTAbits.RA2 == 1 && PORTAbits.RA4 == 0 && PORTBbits.RB4 == 1) {
-               Disp2String("\n\r RA4 pressed\n");
-           }
-           else if (PORTAbits.RA2 == 1 && PORTAbits.RA4 == 1 && PORTBbits.RB4 == 0) {
-               Disp2String("\n\r RB4 pressed\n");
-           }
-        }
-        
-//        char str[10];
-//        f= -15.5678;   
-//        sprintf (str, "%1.3f", f);  // Converts -15.567 stored in f into an array of characters
-//        Disp2String(str);	// Displays -15.567 on terminal	
-
-//        d= -56;   
-//        sprintf (str, "%1.0d", d); // Converts -56 stored in d into an array of characters
-//        Disp2String(str);	// Displays -56 on terminal
-
-//        char str[10]; 
-//        f = -15.5678;   
-//        sprintf (str, "%f", f);  // Converts -15.567 stored in f into an array of characters
-//        // Disp2String(str);
-//        Disp2String(str);// Displays -15.567 on terminal   
-     }
+    while(1) {}
     return 0;
 }
