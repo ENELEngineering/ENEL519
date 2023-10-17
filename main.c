@@ -103,11 +103,14 @@ int main(void) {
     CNPU1bits.CN0PUE = 1;
     CNPU1bits.CN1PUE = 1;
      
+    configure_timer_2(32);
     // Switch clock: 32 for 32kHz, 500 for 500 kHz, 8 for 8MHz 
-    NewClk(8); 
+    //NewClk(8); 
      
     while(1) {
-        Disp2Hex(do_ADC());
+        // Why does it show voltage in of 0
+        // unsigned int vin = adc_value * (3/1023);
+        draw_bar_graph();
     }
     return 0;
 }

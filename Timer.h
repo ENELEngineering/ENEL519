@@ -74,11 +74,13 @@ extern "C" {
 }
 #endif /* __cplusplus */
 
-unsigned int do_ADC(void);
-void configure_ADC_AD1CON1(void);
-void configure_ADC_AD1CON2(void);
-void configure_ADC_AD1CON3(void);
-void draw_bar_graph(void);
+void delay_sec(uint32_t time_sec);
+void delay_ms(uint16_t time_ms, uint16_t idle_on);
+void delay_us(uint16_t time_us, uint16_t idle_on);
+uint32_t calculate_pr_2_3(uint32_t time);
+uint16_t calculate_pr_2(float time);
+void configure_timer_2_3(uint16_t clk);
+void configure_timer_2(uint16_t clk);
+extern uint16_t TMR3flag;
 
 #endif	/* XC_HEADER_TEMPLATE_H */
-

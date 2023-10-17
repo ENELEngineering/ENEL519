@@ -7,6 +7,7 @@
 
 
 #include "xc.h"
+#include "UART2.h"
 
 unsigned int do_ADC(void) {
     uint16_t ADCvalue; // 16 bit register used to hold ADC converted digital output ADC1BUFO.
@@ -34,8 +35,9 @@ unsigned int do_ADC(void) {
     /*---------- ADC SAMPLING AND CONVERSION - CAN BE A DIFFERENT FUNCTION ----------*/
     
     AD1CON1bits.SAMP = 1; // Start Sampling, Conversion starts automatically after SSRC and SAMP settings.
-    while(AD1CON1bits.DONE==0) {}
-    
+    while(AD1CON1bits.DONE==0) { 
+        delay_sec(1);
+    }
     ADCvalue = ADC1BUF0; // ADC output is stored in ADC1BUF0 as this point.
     AD1CON1bits.SAMP = 0; // Stop sampling
     AD1CON1bits.ADON=0; // Turn off ADC, ADC value stored in ADC1BUFO.
@@ -86,5 +88,12 @@ void configure_ADC_AD1CON3(void) {
     // Auto Sample Time bits.
     AD1CON3bits.SAMC = 0b11111; // Slowest sampling time = 31*2/fclk.
     // A/D Conversion Clock Select bits
-    AD1CON3bits.ADCS = 0b11111;
+    //AD1CON3bits.ADCS = 0b11111;
+}
+
+void draw_bar_graph(void) {
+    uint16_t ADCvalue = do_ADC();
+    XmitUART2('-', ADCvalue/33);
+    Disp2Hex(ADCvalue);
+    Disp2String("\n\r");
 }
