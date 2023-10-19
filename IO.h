@@ -73,10 +73,7 @@ extern "C" {
 #ifdef	__cplusplus
 }
 #endif /* __cplusplus */
-void display_single_message(void);
-void display_message(void);
-void configure_peripherals(void);
-void CN_init(void);
-
 #endif	/* XC_HEADER_TEMPLATE_H */
 
+void CN_check();
+void CN_init();

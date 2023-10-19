@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>
-  <executable name="dist/default/debug/ENEL519.debug.elf">
+  <executable name="dist/default/production/ENEL519.production.elf">
     <memory name="data">
       <units>bytes</units>
       <length>1536</length>
-      <used>136</used>
-      <free>1400</free>
+      <used>52</used>
+      <free>1484</free>
     </memory>
     <memory name="program">
       <units>bytes</units>
       <length>16128</length>
-      <used>10275</used>
-      <free>5853</free>
+      <used>10233</used>
+      <free>5895</free>
     </memory>
   </executable>
 </project>

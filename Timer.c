@@ -123,8 +123,6 @@ void configure_timer_2(uint16_t clk) {
 
 void configure_timer_2_3(uint16_t clk) {
     set_clk = clk;
-    // Configure the clock
-    NewClk(clk);
     
     // T2CON Configuration...
     // Configure the clock source -> 0 is the internal clock fosc/2.

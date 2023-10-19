@@ -83,21 +83,20 @@ int main(void) {
     REFOCONbits.ROSEL = 0; // Output base clk showing clock switching
     REFOCONbits.RODIV = 0b0000;
     OSCTUNbits.TUN = 0b111010;
-    // What is this for??
-    AD1PCFG = 0xFFFF;
 
     // LED on RB8
     TRISBbits.TRISB8 = 0;
     
     // Switch clock: 32 for 32kHz, 500 for 500 kHz, 8 for 8MHz 
-    NewClk(500); 
-    
-    configure_peripherals();
+    uint16_t clk = 500;
+    NewClk(clk); 
+    configure_timer_2(clk);
     CN_init();
     
-    while(1)
-        {
-           Idle();
-        }
+    while(1) {
+        CN_check();
+        Idle();
+        
+    }
    return 0;
 }
