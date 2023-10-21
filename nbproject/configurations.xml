@@ -17,6 +17,8 @@
       <itemPath>ChangeClk.h</itemPath>
       <itemPath>UART2.c</itemPath>
       <itemPath>UART2.h</itemPath>
+      <itemPath>TVIR.c</itemPath>
+      <itemPath>TVIR.h</itemPath>
       <itemPath>Timer.c</itemPath>
       <itemPath>Timer.h</itemPath>
     </logicalFolder>

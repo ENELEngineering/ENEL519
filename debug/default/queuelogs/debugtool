@@ -1,0 +1,5 @@
+3840 1697846761747 XXXX 1697846761747, Thread 3840: com.Send returned false 
+3840 1697846761747 XXXX 1697846761747, Thread 3840: Failed sending Abort Script Engine Command. Set nuclear option = true 
+3840 1697846761747 XXXX 1697846761747, Thread 3840: About to nuke 
+3840 1697846761747 XXXX 1697846761747, Thread 3840: XXXX 1697846761747, Entering Thread 3840: ToolCommUsb::nuclearOption  
+3840 1697846761764 XXXX 1697846761764, Thread 3840: com.Send returned false 
