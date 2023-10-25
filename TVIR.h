@@ -77,7 +77,7 @@ extern "C" {
 
 void CN_init();
 void CN_check();
-void carrier_signal();
+void carrier_signal(); 
 void start_bit_signal();
 void one_bit_signal();
 void zero_bit_signal();
