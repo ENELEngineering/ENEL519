@@ -91,9 +91,10 @@ int main(void) {
     TRISBbits.TRISB8 = 0;
     
     // Switch clock: 32 for 32kHz, 500 for 500 kHz, 8 for 8MHz 
-    uint16_t clk = 32;
-    NewClk(clk); 
-    configure_timer_2(clk);
+    SetClk(8); 
+    configure_timer_1();
+    configure_timer_2();
+    configure_timer_3();
     CN_init();
      
     while(1) {

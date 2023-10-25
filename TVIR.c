@@ -19,21 +19,20 @@ uint16_t mode=0;
 /* Create the ISR routine. Common interrupt routine for all CN inputs.
  * The interrupt is triggered by any change of state: hi to lo, lo to hi.
  * Interrupts will be triggered for debounces on push buttons too.
- * Clear the interrupt flag
+ * Clear the interrupt flag.
  * In interrupt routine, check the PORTs to determine 
  * which IO pin had a change of notification.
  */
 void __attribute__((interrupt, no_auto_psv))_CNInterrupt(void) {
-
-    // Should handle debounce effects.
-    IEC1bits.CNIE = 0;
-    delay_ms(100, 1);
+    IEC1bits.CNIE = 0; // Handle debounce effects by disabling the interrupts.
+    delay_us(10, 1); // Allow debounces to settle by setting a delay.
     Nop();
     
     if (IFS1bits.CNIF = 1) {
         ninterrupt += 1;
     }
-
+    
+    // Set flags depending on which push buttons are pressed.
     if (PORTBbits.RB4 == 0 && PORTAbits.RA2 == 0) {
         RB4_Flag = 1;
         RA2_Flag = 1;
@@ -54,25 +53,47 @@ void __attribute__((interrupt, no_auto_psv))_CNInterrupt(void) {
         RB4_Flag = 0;       
         RA2_Flag = 0;
     }
-    // Clear the IF flag.
-    IFS1bits.CNIF = 0;
-    IEC1bits.CNIE = 1;
+    IFS1bits.CNIF = 0; // Clear the IF flag.
+    IEC1bits.CNIE = 1; // Re-enable the interrupt.
 }
 
+/* 
+ * Function to initialize all the I/O ports and the CN interrupts.
+ */
+void CN_init(){ 
+    AD1PCFG = 0xFFFF; // Turn all analog pins as digital on RA2
+    TRISAbits.TRISA2 = 1; // Set RA2 as input (Top button).
+    TRISBbits.TRISB4 = 1; // Set RB4 as input (Buttom button).
+    CNPU2bits.CN30PUE = 1; // Set pull up on RA2.
+    CNPU1bits.CN1PUE = 1; // Set pull up on RB4.
+    CNEN2bits.CN30IE = 1; // Enable the interrupt for RA2.
+    CNEN1bits.CN1IE = 1; // Enable the interrupt for RB4.
+    IPC4bits.CNIP = 0b111; // Set highest priority for interrupt.
+    IEC1bits.CNIE = 1; // Interrupt request enabled.
+    return;
+}
+
+/**
+ * Check push button behaviour.
+ * Power On/Off => Both buttons are pressed for more than 3 seconds.
+ * Channel/Volume Mode switch => Both buttons are pressed for less than 3 seconds.
+ * Channel/Volume Up => RA2 pressed.
+ * Channel/Volume Down => RB4 pressed. 
+ */
 void CN_check() {  
-    
+    // Detect both push buttons are pressed.
     if (RB4_Flag == 1 && RA2_Flag == 1) {
-        // Start the 16 bit Timer2.
-        T3CONbits.TON = 1;
-        // Clearing Timer 2.
-        TMR3 = 0;
+        T3CONbits.TON = 1; // Start the 16 bit timer 3.
+        TMR3 = 0; // Clear timer 3 at the start.
         Disp2String("\n\r CN1/RB4, CN30/RA2 are pressed\n");
     } 
+    
+    // Detect both push buttons are released.
     if (RB4_Flag == 0 && RA2_Flag == 0) {
         if (T3CONbits.TON == 1) {
-            T3CONbits.TON == 0;
-            // 4800 translates to 3 seconds
-            if (TMR3 >= 48000) {
+            T3CONbits.TON == 0; // Stop the 16 bit timer 3.
+            // 46875 translates to 3 seconds at 8MHz clock with 256 prescaler.
+            if (TMR3 >= 46875) {
                 Disp2String("\n\r Power ON/OFF\n");
             } else {
                 mode = !mode;
@@ -84,6 +105,7 @@ void CN_check() {
             }
         }
     }
+    // Detect top button RA2 is pressed.
     else if (RB4_Flag == 0 && RA2_Flag == 1) {
         if (mode == 1) {
             Disp2String("\n\r Volume Up\n");       
@@ -91,6 +113,7 @@ void CN_check() {
             Disp2String("\n\r Channel Up\n");       
         }
     }
+    // Detect buttom button RB4 is pressed.
     else if (RB4_Flag == 1 && RA2_Flag == 0) {
         if (mode == 1) {
             Disp2String("\n\r Volume Down\n");       
@@ -101,35 +124,95 @@ void CN_check() {
     
     RB4_Flag = 0; 
     RA2_Flag = 0;
-
+    
     if (ninterrupt >= 2) {
         ninterrupt = 0;
     }
 }
 
-/* Wakes up the PIC from idle or sleep when push buttons tied to
- * RB4/CN1, RA4/CN0, and RA2/CN30 are pushed.
- * Displays the status of the push buttons on Teraterm window when 
- * one of more buttons are pushed. "CN1/RB4 is pressed", 
- * "CN1/RB4 and CN0/RA4 are pressed."
+/**
+ * Carrier signal is created with a 38KHz frequency which means a period of
+ * 26.32us, thus on bit of 13.16us and off bit of 13.16us.
  */
-void CN_init(){ //Function to initialize all the I/O ports and the CN interrupts
-    AD1PCFG = 0xFFFF; // Turn all analog pins as digital on RA2
-    TRISAbits.TRISA2 = 1;
-    TRISAbits.TRISA4 = 1;
-    TRISBbits.TRISB4 = 1;
+void carrier_signal() {
+    LATBbits.LATB9 = 1;
+    delay_us(13, 1);
+    LATBbits.LATB9 = 0;
+    delay_us(13, 1);
+    return;
+}
 
-    CNPU2bits.CN30PUE = 1;
-    CNPU1bits.CN0PUE = 1;
-    CNPU1bits.CN1PUE = 1;
+void start_bit_signal() {
+    T2CONbits.TON = 1; // Start the 16 bit timer 2.
+    TMR2 = 0; // Clear timer 2 at the start.
+    // 18000 represents 4.5ms on a 8MHz clock with 1:1 prescaler.
+    while (TMR2 <= 18000) {
+        carrier_signal();
+    }
+    T2CONbits.TON == 0; // Stop the 16 bit timer 3.
     
-    // To handle debounce effects, disable the interrupt for
-    // a certain period of time once a push button is pressed
-    // and then enable. 
-    CNEN1bits.CN0IE = 1;
-    CNEN1bits.CN1IE = 1;
-    CNEN2bits.CN30IE = 1;
+    T2CONbits.TON = 1; // Start the 16 bit timer 2.
+    TMR2 = 0; // Clear timer 2 at the start.
+    while(TMR2 <= 18000) {
+        LATBbits.LATB9 = 0;
+    }
+    T2CONbits.TON == 0; // Stop the 16 bit timer 3.
+    return;
+}
+
+void one_bit_signal() {
+    T2CONbits.TON = 1; // Start the 16 bit timer 2.
+    TMR2 = 0; // Clear timer 2 at the start.
+    // 2240 represents 0.56ms on a 8MHz clock with 1:1 prescaler.
+    while (TMR2 <= 2240) {
+        carrier_signal();
+    }
+    T2CONbits.TON == 0; // Stop the 16 bit timer 3.
     
-    IPC4bits.CNIP = 0b111; // Set highest priority for interrupt
-    IEC1bits.CNIE = 1; // Interrupt request enabled
+    T2CONbits.TON = 1; // Start the 16 bit timer 2.
+    TMR2 = 0; // Clear timer 2 at the start.
+    // 6760 represents 1.69ms on a 8MHz clock with 1:1 prescaler.
+    while(TMR2 <= 6760) {
+        LATBbits.LATB9 = 0;
+    }
+    T2CONbits.TON == 0; // Stop the 16 bit timer 3.
+    return;
+}
+
+void zero_bit_signal() {
+    T2CONbits.TON = 1; // Start the 16 bit timer 2.
+    TMR2 = 0; // Clear timer 2 at the start.
+    // 2240 represents 0.56ms on a 8MHz clock with 1:1 prescaler.
+    while (TMR2 <= 2240) {
+        carrier_signal();
+    }
+    T2CONbits.TON == 0; // Stop the 16 bit timer 3.
+    
+    T2CONbits.TON = 1; // Start the 16 bit timer 2.
+    TMR2 = 0; // Clear timer 2 at the start.
+    while(TMR2 <= 2240) {
+        LATBbits.LATB9 = 0;
+    }
+    T2CONbits.TON == 0; // Stop the 16 bit timer 3.
+    return;
+}
+
+void _power_on_off() {
+    return;
+}
+
+void _volume_up_() {
+    return;
+}
+
+void _volume_down() {
+    return;
+}
+
+void _channel_up() {
+    return;
+}
+
+void _channel_down() {
+    return;
 }

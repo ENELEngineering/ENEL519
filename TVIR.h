@@ -73,8 +73,16 @@ extern "C" {
 #ifdef	__cplusplus
 }
 #endif /* __cplusplus */
-
 #endif	/* XC_HEADER_TEMPLATE_H */
 
-void CN_check();
 void CN_init();
+void CN_check();
+void carrier_signal();
+void start_bit_signal();
+void one_bit_signal();
+void zero_bit_signal();
+void _power_on_off();
+void _volume_up_();
+void _volume_down();
+void _channel_up();
+void _channel_down();
