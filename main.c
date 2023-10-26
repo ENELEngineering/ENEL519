@@ -18,6 +18,7 @@
 #include "ChangeClk.h"
 #include "UART2.h"
 #include "ADC.h"
+#include "Timer.h"
 
 //// CONFIGURATION BITS ////
 
@@ -103,7 +104,8 @@ int main(void) {
     CNPU1bits.CN0PUE = 1;
     CNPU1bits.CN1PUE = 1;
      
-    configure_timer_2(32);
+    SetClk(8);
+    configure_timer_2();
     // Switch clock: 32 for 32kHz, 500 for 500 kHz, 8 for 8MHz 
     //NewClk(8); 
      
