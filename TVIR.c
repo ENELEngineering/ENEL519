@@ -25,7 +25,7 @@ uint16_t mode=0;
  */
 void __attribute__((interrupt, no_auto_psv))_CNInterrupt(void) {
     IEC1bits.CNIE = 0; // Handle debounce effects by disabling the interrupts.
-    delay_us(10, 1); // Allow debounces to settle by setting a delay.
+    delay_ms(50, 1); // Allow debounces to settle by setting a delay.
     Nop();
     
     if (IFS1bits.CNIF = 1) {
@@ -81,53 +81,57 @@ void CN_init(){
  * Channel/Volume Down => RB4 pressed. 
  */
 void CN_check() {  
-    // Detect both push buttons are pressed.
-    if (RB4_Flag == 1 && RA2_Flag == 1) {
-        T3CONbits.TON = 1; // Start the 16 bit timer 3.
-        TMR3 = 0; // Clear timer 3 at the start.
-        Disp2String("\n\r CN1/RB4, CN30/RA2 are pressed\n");
-    } 
     
-    // Detect both push buttons are released.
-    if (RB4_Flag == 0 && RA2_Flag == 0) {
-        if (T3CONbits.TON == 1) {
-            T3CONbits.TON == 0; // Stop the 16 bit timer 3.
-            // 46875 translates to 3 seconds at 8MHz clock with 256 prescaler.
-            if (TMR3 >= 46875) {
-                Disp2String("\n\r Power ON/OFF\n");
-            } else {
-                mode = !mode;
-                if (mode == 1) {
-                    Disp2String("\n\r Selected Volume Mode\n");       
+    if (ninterrupt <= 1) {
+        // Detect both push buttons are pressed.
+        if (RB4_Flag == 1 && RA2_Flag == 1) {
+            T3CONbits.TON = 1; // Start the 16 bit timer 3.
+            TMR3 = 0; // Clear timer 3 at the start.
+            Disp2String("\n\r CN1/RB4, CN30/RA2 are pressed\n");
+        } 
+        // Detect both push buttons are released.
+        else if (RB4_Flag == 0 && RA2_Flag == 0) {
+            if (T3CONbits.TON == 1) {
+                T3CONbits.TON == 0; // Stop the 16 bit timer 3.
+                // 46875 translates to 3 seconds at 8MHz clock with 256 prescaler.
+                if (TMR3 >= 46875) {
+                    Disp2String("\n\r Power ON/OFF\n");
                 } else {
-                    Disp2String("\n\r Selected Channel Mode\n");
-                } 
+                    mode = !mode;
+                    if (mode == 1) {
+                        Disp2String("\n\r Selected Volume Mode\n");       
+                    } else {
+                        Disp2String("\n\r Selected Channel Mode\n");
+                    } 
+                }
             }
         }
-    }
-    // Detect top button RA2 is pressed.
-    else if (RB4_Flag == 0 && RA2_Flag == 1) {
-        if (mode == 1) {
-            Disp2String("\n\r Volume Up\n");       
-        } else {
-            Disp2String("\n\r Channel Up\n");       
+        // Detect top button RA2 is pressed.
+        else if (RB4_Flag == 0 && RA2_Flag == 1) {
+            if (mode == 1) {
+                Disp2String("\n\r Volume Up\n");       
+            } else {
+                Disp2String("\n\r Channel Up\n");       
+            }
         }
-    }
-    // Detect buttom button RB4 is pressed.
-    else if (RB4_Flag == 1 && RA2_Flag == 0) {
-        if (mode == 1) {
-            Disp2String("\n\r Volume Down\n");       
-        } else {
-            Disp2String("\n\r Channel Down\n");       
+        // Detect buttom button RB4 is pressed.
+        else if (RB4_Flag == 1 && RA2_Flag == 0) {
+            if (mode == 1) {
+                Disp2String("\n\r Volume Down\n");       
+            } else {
+                Disp2String("\n\r Channel Down\n");       
+            }
         }
-    }
     
+    } else {
+        ninterrupt = 0;
+    }
     RB4_Flag = 0; 
     RA2_Flag = 0;
     
-    if (ninterrupt >= 2) {
-        ninterrupt = 0;
-    }
+//    if (ninterrupt >= 2) {
+//        ninterrupt = 0;
+//    }
 }
 
 /**
@@ -136,10 +140,9 @@ void CN_check() {
  */
 void carrier_signal() {
     LATBbits.LATB9 = 1;
-    delay_us(13, 1);
+    delay_us(4, 1);
     LATBbits.LATB9 = 0;
-    delay_us(13, 1);
-    return;
+    delay_us(4, 1);
 }
 
 void start_bit_signal() {
