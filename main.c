@@ -5,7 +5,7 @@
  * Created on January 9, 2017, 5:26 PM
  * 
  * Modified by John Santos and Anhela Francees on 
- * September 22, 2023.
+ * October 27, 2023.
  */
 
 
@@ -17,6 +17,7 @@
 #include <errno.h>
 #include "ChangeClk.h"
 #include "UART2.h"
+#include "Comparator.h"
 
 //// CONFIGURATION BITS ////
 
@@ -85,74 +86,18 @@ int main(void) {
     REFOCONbits.ROSEL = 0; // Output base clk showing clock switching
     REFOCONbits.RODIV = 0b0000;
     OSCTUNbits.TUN = 0b111010;
-    
-    // LED on RB7
-    //TRISBbits.TRISB7 = 0; // set RB7 as output for LED
-    TRISBbits.TRISB8 = 0;
-    // What is this for??
     AD1PCFG = 0xFFFF;
-    
-    // Configure push button pins (RA2, RA4, RB4) as inputs
-    TRISAbits.TRISA2 = 1;
-    TRISAbits.TRISA4 = 1;
-    TRISBbits.TRISB4 = 1;
-
-    // Enable Pull-up on the push button pins with register
-    CNPU2bits.CN30PUE = 1;
-    CNPU1bits.CN0PUE = 1;
-    CNPU1bits.CN1PUE = 1;
-     
+   
     // Switch clock: 32 for 32kHz, 500 for 500 kHz, 8 for 8MHz 
-    NewClk(32); 
+    NewClk(8); 
+    
+    TRISBbits.TRISB14 = 0; // Set to output.
+    CVRCONbits.CVREN = 1; // CVREF circuit is powered on.
+    CVRCONbits.CVROE = 1; // CVREF voltage level is output on CVREF pin.
+    CVRCONbits.CVRSS = 0; // Comparator reference source CVRSRC = AVDD - AVSS.
      
-    while(1)
-     {
-        if (PORTAbits.RA2 == 1 && PORTAbits.RA4 == 1 && PORTBbits.RB4 == 1) {
-            Disp2String("\n\r No presses\n");
-        } else {
-            
-            LATBbits.LATB8 = 1;
-            for (int i=0; i<32000;i++) { }
-            LATBbits.LATB8 = 0;
-            for (int i=0; i<32000;i++) { }
-            
-           if (PORTAbits.RA2 == 0 && PORTAbits.RA4 == 0 && PORTBbits.RB4 == 0) {
-               Disp2String("\n\r RA2, RB4, and RA4 pressed\n");
-           }
-           else if (PORTAbits.RA2 == 0 && PORTAbits.RA4 == 0 && PORTBbits.RB4 == 1) {
-               Disp2String("\n\r RA2 and RA4 pressed\n");
-           }
-           else if (PORTAbits.RA2 == 0 && PORTAbits.RA4 == 1 && PORTBbits.RB4 == 0) {
-               Disp2String("\n\r RA2 and RB4 pressed\n");
-           }
-           else if (PORTAbits.RA2 == 0 && PORTAbits.RA4 == 1 && PORTBbits.RB4 == 1) {
-               Disp2String("\n\r RA2 pressed\n");
-           }
-           else if (PORTAbits.RA2 == 1 && PORTAbits.RA4 == 0 && PORTBbits.RB4 == 0) {
-               Disp2String("\n\r RA4 and RB4 pressed\n");
-           }
-           else if (PORTAbits.RA2 == 1 && PORTAbits.RA4 == 0 && PORTBbits.RB4 == 1) {
-               Disp2String("\n\r RA4 pressed\n");
-           }
-           else if (PORTAbits.RA2 == 1 && PORTAbits.RA4 == 1 && PORTBbits.RB4 == 0) {
-               Disp2String("\n\r RB4 pressed\n");
-           }
-        }
-        
-//        char str[10];
-//        f= -15.5678;   
-//        sprintf (str, "%1.3f", f);  // Converts -15.567 stored in f into an array of characters
-//        Disp2String(str);	// Displays -15.567 on terminal	
-
-//        d= -56;   
-//        sprintf (str, "%1.0d", d); // Converts -56 stored in d into an array of characters
-//        Disp2String(str);	// Displays -56 on terminal
-
-//        char str[10]; 
-//        f = -15.5678;   
-//        sprintf (str, "%f", f);  // Converts -15.567 stored in f into an array of characters
-//        // Disp2String(str);
-//        Disp2String(str);// Displays -15.567 on terminal   
-     }
+    while(1) {
+        CVREFInit(2.20);
+    }
     return 0;
 }
