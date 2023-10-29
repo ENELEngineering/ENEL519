@@ -100,13 +100,10 @@ int main(void) {
     // 8MHz clock range = 5us to 16.38 ms.
     // 500KHz clock range = 4ms to 262.1 ms.
     // 31KHz clock range = 51ms to 4.095 sec.
-    uint16_t time_delay_s = 1; 
-    // Note: NewClk is being called already inside the function call below.
-    configure_timer_2_3(32);
-
-    // Switch clock: 32 for 32kHz, 500 for 500 kHz, 8 for 8MHz 
-    //NewClk(32); 
-
+    uint16_t time_delay_s = 2; 
+    SetClk(32);
+    configure_timer_2_3();
+ 
    while(1)
     {
        if (PORTAbits.RA2 == 0 || PORTAbits.RA4 == 0 || PORTBbits.RB4 == 0) {

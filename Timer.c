@@ -11,77 +11,106 @@ uint64_t set_clk;
 
 // Timer 2/3 interrupt subroutine.
 void __attribute__((interrupt, no_auto_psv))_T3Interrupt(void) {
-    // Clear timer 2 interrupt flag - auto cleared in some PICs.
-    IFS0bits.T3IF = 0; 
-    // Set user defined global variable since T3IF may be auto cleared.
-    uint16_t TMR3flag = 1;
-    // Stop timer 3/2.
-    T2CONbits.TON = 0;
+    IFS0bits.T3IF = 0; // Clear timer 3 interrupt flag.
+    uint16_t TMR3flag = 1; // Since T3IF may be auto cleared.
+    T2CONbits.TON = 0; // Stop timer 3/2.
     return;
 }
 
-// Time 2 interrupt subroutine.
+// Timer 2 interrupt subroutine.
 void __attribute__((interrupt, no_auto_psv))_T2Interrupt(void) {
-    // Clear timer 2 interrupt flag
-    IFS0bits.T2IF = 0;
-    // Stop timer
-    T2CONbits.TON = 0;
-    // Global variable created by user
-    //TMR2flag = 1;
+    IFS0bits.T2IF = 0; // Clear timer 2 interrupt flag.
+    T2CONbits.TON = 0; // Stop timer 2.
     return;
 }
 
+void SetClk(uint16_t clk) {
+    set_clk = clk;
+    NewClk(clk); // Configure the clock.
+}
+
+/**
+ * Configure Timer 2.
+ */
+void configure_timer_2() {
+    T2CONbits.TCS = 0; // Use the internal clock fosc/2.
+    T2CONbits.TSIDL = 0; // Continue the module operation at idle.
+    T2CONbits.TCKPS = 0b00; // Use 1:1 scaling.
+    T2CONbits.T32 = 0; // Timer2 and Timer3 act as two 16 bit timers.
+    IPC1bits.T2IP = 0b111; // Set priority to level 7.
+    IEC0bits.T2IE = 1; // Enable the interrupt.
+    IFS0bits.T2IF = 0; // Clear the interrupt flag.
+    return;
+}
+
+/**
+ * Configure Timer 2 and 3 acting as one 32 bit timer. 
+ * @param clk
+ */
+void configure_timer_2_3() {
+    T2CONbits.TCS = 0; // Use internal clock fosc/2.
+    T2CONbits.TSIDL = 0; // Continue the module operation at idle.
+    T2CONbits.TCKPS = 0b00; // Use 1:1 scaling.
+    T2CONbits.T32 = 1; // Timer2 and Timer3 form a single 32-bit timer.
+    IPC1bits.T2IP = 0b111; // Set priority to level 7.
+    IEC0bits.T3IE = 1; // Enable the interrupt.
+    IFS0bits.T2IF = 0; // Clear the interrupt flag.
+    return;
+}
+
+/**
+ * Provides delay in seconds. 
+ * @param time_sec The time in seconds to delay.
+ */
 void delay_sec(uint32_t time_sec) {
-    // Start the 32 bit Timer2/3.
-    T2CONbits.TON = 1;
-    // Clearing Timer 2 and 3.
-    TMR2 = 0; // Least significant word
-    TMR3 = 0; // Most significant word
-    
-    // Compute PR2 (16 bits) and PR3 (16 bits). Implement bit shifting for 32 bits.
+    T2CONbits.TON = 1; // Start the 32 bit timer 2/3.
+    TMR2 = 0; // Clear timer 2.
+    TMR3 = 0; // Clear timer 3.
     // An interrupt is generated when PR3:PR2 = TMR3:TMR2
-    uint32_t pr23 = calculate_pr_2_3(time_sec);
+    uint32_t pr23 = calculate_pr_2_3(time_sec); // Compute PR2 (16 bits) and PR3 (16 bits). 
+    // Implement bit shifting for 32 bits.
     PR2 = pr23; // Least significant word.
     PR3 = pr23 >> 16; // Most significant word.
-    
     Idle();
     return;   
 }
 
 /*
- * This function blinks the LED at a set time. 
- * @param: interval is the time in ms to blink the LED.
+ * Provides delay in milliseconds.
+ * @param: time_ms The time in millseconds to delay.
+ * @param idle_on: Set to 1 to enable idle.
  */
 void delay_ms(uint16_t time_ms, uint16_t idle_on) {
-    // Start the 16 bit Timer2.
-    T2CONbits.TON = 1;
-    // Clearing Timer 2.
-    TMR2 = 0;
-
-    // Compute PR2...convert time_ms to seconds.
-    PR2 = calculate_pr_2(time_ms*1e-3);
-    
-    Idle();
+    T2CONbits.TON = 1; // Start the 16 bit timer 2.
+    TMR2 = 0; // Clearing Timer 2.
+    PR2 = calculate_pr_2(time_ms*1e-3); // Compute PR2...convert time_ms to seconds.
+    if (idle_on == 1) {
+        Idle();   
+    }
     return;
 }
 
+/**
+ * Provides a delay in microseconds.
+ * @param time_us: The time in microseconds to delay.
+ * @param idle_on: Set to 1 to enable idle.
+ */
 void delay_us(uint16_t time_us, uint16_t idle_on) {
-    // Start the 16 bit Timer2.
-    T2CONbits.TON = 1;
-    // Clearing Timer 2.
-    TMR2 = 0;
-    
-    // Compute PR2...convert time_us to seconds.
-    //PR2 = calculate_pr_2(time_us*1e-6);
-    
+    T2CONbits.TON = 1; // Start the 16 bit timer 2.
+    TMR2 = 0; // Clearing timer 2.
     // This just assumes that using this delay passes an 8MHz clock. 
-    // Other methods for convert clock to Hz fails...
     PR2 = (uint32_t) (time_us * set_clk)/2;
-    
-    Idle();
+    if (idle_on == 1) {
+        Idle();
+    }
     return;
 }
 
+/**
+ * Calculates the 32 bit PR2:3 to provide second delays.
+ * @param time: The time in seconds to delay.
+ * @return: The 32 bit PR2:3.
+ */
 uint32_t calculate_pr_2_3(uint32_t time) {
     if (set_clk == 8) { 
         return (uint32_t) (time * set_clk*1E6)/2;
@@ -89,60 +118,14 @@ uint32_t calculate_pr_2_3(uint32_t time) {
     return (uint32_t) (time * set_clk*1E3)/2;   
 }
 
+/**
+ * Calculates the 16 bit PR2.
+ * @param time: The time in seconds to delay.
+ * @return: PR2
+ */
 uint16_t calculate_pr_2(float time) {
     if (set_clk == 8) { 
         return (uint16_t) (time * set_clk*1E6)/2;
     } 
     return (uint16_t) (time * set_clk*1E3)/2;   
 }
-
-void configure_timer_2(uint16_t clk) {
-    set_clk = clk;
-    // Configure the clock
-    NewClk(clk);
-    
-    // T2CON Configuration...
-    // Configure the clock source -> 0 is the internal clock fosc/2.
-    T2CONbits.TCS = 0;
-    // Setting to 0 means to continue the module operation at idle.
-    T2CONbits.TSIDL = 0;
-    // Clock prescale select bits 00 -> 1:1 scaling.
-    T2CONbits.TCKPS = 0b00;
-    // Setting to 0 means Timer2 and Timer3 act as two 16 bit timers.
-    T2CONbits.T32 = 0;
-    
-    // Timer 2 Interrupt Operation
-    // Set priority to level 7.
-    IPC1bits.T2IP = 0b111;
-    // Enable the interrupt.
-    IEC0bits.T2IE = 1;
-    // Clear the interrupt flag.
-    IFS0bits.T3IF = 0;
-    return;
-}
-
-void configure_timer_2_3(uint16_t clk) {
-    set_clk = clk;
-    // Configure the clock
-    NewClk(clk);
-    
-    // T2CON Configuration...
-    // Configure the clock source -> 0 is the internal clock fosc/2.
-    T2CONbits.TCS = 0;
-    // Setting to 0 means to continue the module operation at idle.
-    T2CONbits.TSIDL = 0;
-    // Clock prescale select bits 00 -> 1:1 scaling.
-    T2CONbits.TCKPS = 0b00;
-    // Setting to 1 means Timer2 and Timer3 form a single 32-bit timer.
-    T2CONbits.T32 = 1;
-    
-    // Timer 2/3 Interrupt Operation
-    // Set priority to level 7.
-    IPC1bits.T2IP = 0b111;
-    // Enable the interrupt.
-    IEC0bits.T3IE = 1;
-    // Clear the interrupt flag.
-    IFS0bits.T2IF = 0;
-    return;
-}
-
