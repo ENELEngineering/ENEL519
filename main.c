@@ -89,20 +89,22 @@ int main(void) {
     
     // LED on RB8
     TRISBbits.TRISB8 = 0;
+    // Infrared on RB9
     TRISBbits.TRISB9 = 0;
     
     // Switch clock: 32 for 32kHz, 500 for 500 kHz, 8 for 8MHz 
-    SetClk(8); 
+    SetClk(500); 
     configure_timer_1();
     configure_timer_2();
     configure_timer_3();
-    //CN_init();
+    CN_init();
      
     while(1) {
-//        CN_check();
-//        Idle();
-        //LATBbits.LATB9 = 1;
-        carrier_signal();
+        CN_check();
+        Idle();        
+        //carrier_signal();
+        //one_bit_signal();
+        //_power_on_off();
     }
     return 0;
 }
