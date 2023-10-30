@@ -97,7 +97,7 @@ int main(void) {
     CVRCONbits.CVRSS = 0; // Comparator reference source CVRSRC = AVDD - AVSS.
      
     while(1) {
-        CVREFInit(2.20);
+        CVREFInit(0.45);
     }
     return 0;
 }
