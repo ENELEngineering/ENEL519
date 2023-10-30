@@ -98,7 +98,7 @@ int main(void) {
     configure_timer_2();
     configure_timer_3();
     CN_init();
-     
+    
     while(1) {
         CN_check();
         Idle();        
