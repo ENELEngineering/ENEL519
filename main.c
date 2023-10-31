@@ -100,8 +100,11 @@ int main(void) {
     CN_init();
     
     while(1) {
+        
         CN_check();
+        
         Idle();        
+        
         //carrier_signal();
         //one_bit_signal();
         //_power_on_off();

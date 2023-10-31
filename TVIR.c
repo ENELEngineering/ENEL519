@@ -14,7 +14,7 @@
 #define FCY 4000000UL
 
 // Global Variables
-uint16_t RB4_Flag, RA2_Flag;
+uint16_t RB4_Flag, RA2_Flag, Print_Flag = 1;
 uint16_t ninterrupt=0;
 uint16_t both_presses=0;
 
@@ -53,6 +53,7 @@ void __attribute__((interrupt, no_auto_psv))_CNInterrupt(void) {
     else if (PORTBbits.RB4 = 1 && PORTAbits.RA2 == 1) {
         RB4_Flag = 0;
         RA2_Flag = 0;
+        Print_Flag = 1;
     }
     else{
         RB4_Flag = 0;       
@@ -94,6 +95,7 @@ void CN_init(){
  */
 void CN_check() {  
     NewClk(500);
+    
     if (ninterrupt <= 1) {
         // Detect both push buttons are pressed.
         if (RB4_Flag == 1 && RA2_Flag == 1) {
@@ -105,14 +107,22 @@ void CN_check() {
         } 
         // Detect top button RA2 is pressed.
         if (RB4_Flag == 0 && RA2_Flag == 1) {
-           // Debugging purposes.
-           //Disp2String("\n\r RA2 pressed\n"); 
+            // Debugging purposes.
+            //Disp2String("\n\r RA2 pressed\n"); 
             if (mode == 1) {
-                Disp2String("\n\r Volume Up\n");
+                if (Print_Flag == 1) {
+                   Disp2String("\n\r Volume Up\n");
+                   Print_Flag = 0;
+                }  
                 _volume_up();
+                delay_ms(47, 1);
             } else {
-                Disp2String("\n\r Channel Up\n");  
+                if (Print_Flag == 1) {
+                    Disp2String("\n\r Channel Up\n");  
+                    Print_Flag = 0;
+                }
                 _channel_up();
+                delay_ms(47, 1);
             }
             both_presses = 0;
         }
@@ -121,11 +131,19 @@ void CN_check() {
             // Debugging purposes.
             //Disp2String("\n\r RB4 pressed\n");
             if (mode == 1) {
-                Disp2String("\n\r Volume Down\n");  
+                if (Print_Flag == 1) {
+                    Disp2String("\n\r Volume Down\n");  
+                    Print_Flag = 0;
+                }
                 _volume_down();
+                delay_ms(47, 1);
             } else {
-                Disp2String("\n\r Channel Down\n");  
+                if (Print_Flag == 1) {
+                    Disp2String("\n\r Channel Down\n");  
+                    Print_Flag = 0;
+                }
                 _channel_down();
+                delay_ms(47, 1);
             }
             both_presses = 0;
         }
