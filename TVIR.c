@@ -115,14 +115,14 @@ void CN_check() {
                    Print_Flag = 0;
                 }  
                 _volume_up();
-                delay_ms(47, 1);
+                delay_ms(60, 1);
             } else {
                 if (Print_Flag == 1) {
                     Disp2String("\n\r Channel Up\n");  
                     Print_Flag = 0;
                 }
                 _channel_up();
-                delay_ms(47, 1);
+                delay_ms(60, 1);
             }
             both_presses = 0;
         }
@@ -136,14 +136,14 @@ void CN_check() {
                     Print_Flag = 0;
                 }
                 _volume_down();
-                delay_ms(47, 1);
+                delay_ms(60, 1);
             } else {
                 if (Print_Flag == 1) {
                     Disp2String("\n\r Channel Down\n");  
                     Print_Flag = 0;
                 }
                 _channel_down();
-                delay_ms(47, 1);
+                delay_ms(60, 1);
             }
             both_presses = 0;
         }
@@ -161,6 +161,7 @@ void CN_check() {
                         TMR3 = 0; // Clear timer 3 at the start.
                         Disp2String("\n\r Power ON/OFF\n");
                         _power_on_off();
+                        delay_ms(60, 1);
                     } else {
                         mode = !mode;
                         if (mode == 1) {
@@ -256,6 +257,25 @@ void zero_bit_signal() {
     return;
 }
 
+void stop_bit_signal() {
+    T3CONbits.TON = 1; // Start the 16 bit timer 3.
+    TMR3 = 0; // Clear timer 3 at the start.
+    // 782 represents 50ms on a 8MHz clock with 1:256 prescaler.
+    while (TMR3 <= 782) {
+        LATBbits.LATB9 = 0;
+    }
+    T3CONbits.TON == 0; // Stop the 16 bit timer 3.
+    TMR3 = 0; // Clear timer 3 at the start.
+//    T3CONbits.TON = 1; // Start the 16 bit timer 3.
+//    TMR3 = 0; // Clear timer 3 at the start.
+//    while(TMR3 <= 782) {
+//        LATBbits.LATB9 = 0;
+//    }
+//    T3CONbits.TON == 0; // Stop the 16 bit timer 3.
+//    TMR3 = 0; // Clear timer 3.
+    return;
+}
+
 /**
  * The command in hex is: startbit_0xE0E040BF
  * The command in binary is: startbit_1110_0000_1110_0000_0100_0000_1011_1111
@@ -303,6 +323,9 @@ void _power_on_off() {
     one_bit_signal();
     one_bit_signal();
     one_bit_signal();
+    zero_bit_signal();
+    
+    stop_bit_signal();
     return;
 }
 
@@ -353,6 +376,8 @@ void _volume_up() {
     one_bit_signal();
     one_bit_signal();
     one_bit_signal();
+    
+    //zero_bit_signal();
     return;
 }
 
@@ -403,6 +428,8 @@ void _volume_down() {
     one_bit_signal();
     one_bit_signal();
     one_bit_signal();
+    
+    //zero_bit_signal();
     return;
 }
 
@@ -453,6 +480,8 @@ void _channel_up() {
     one_bit_signal();
     one_bit_signal();
     one_bit_signal();
+    
+    //zero_bit_signal();
     return;
 }
 
@@ -503,5 +532,7 @@ void _channel_down() {
     one_bit_signal();
     one_bit_signal();
     one_bit_signal();
+    
+    //zero_bit_signal();
     return;
 }

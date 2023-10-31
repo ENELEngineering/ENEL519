@@ -81,6 +81,7 @@ void carrier_signal();
 void start_bit_signal();
 void one_bit_signal();
 void zero_bit_signal();
+void stop_bit_signal();
 void _power_on_off();
 void _volume_up();
 void _volume_down();

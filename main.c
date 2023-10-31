@@ -97,17 +97,16 @@ int main(void) {
     configure_timer_1();
     configure_timer_2();
     configure_timer_3();
-    CN_init();
-    
+    //CN_init();
+    NewClk(8);
     while(1) {
-        
-        CN_check();
-        
-        Idle();        
+        //CN_check();
+        //Idle();        
         
         //carrier_signal();
         //one_bit_signal();
-        //_power_on_off();
+        _power_on_off();
+        delay_ms(10, 1);
     }
     return 0;
 }

@@ -63,7 +63,7 @@ void configure_timer_1() {
 void configure_timer_2() {
     T2CONbits.TCS = 0; // Use the internal clock fosc/2.
     T2CONbits.TSIDL = 0; // Continue module operation at idle.
-    T2CONbits.TCKPS = 0b00; // Clock prescaler uses 1:8 scaling.
+    T2CONbits.TCKPS = 0b00; // Clock prescaler uses 1:1 scaling.
     T2CONbits.T32 = 0; // Timer2 and Timer3 act as two 16 bit timers.
     IPC1bits.T2IP = 0b111; // Priority level is 7.
     IEC0bits.T2IE = 1; // Enable the interrupt.
