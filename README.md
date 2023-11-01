@@ -24,3 +24,54 @@ Samsung TV by wirelessly sending infrared commands to IR LED connected on PIN13/
         IR LED and display "Volume Up" on PC terminal.
         * When PB2 is pressed = Microcontroller transmits volume down command through
         IR LED and display "Volume Down" on PC terminal. 
+
+# Circuit Diagram
+
+![CircuitDiagram](images/circuit.png)
+
+# Modulation Types
+
+In this assignment, OOK modulation will be used.
+
+![Modulation](images/modulation.png)
+
+The carrier sine wave should be produced with a 38kHz signal. 
+
+# Samsung TV Commands
+* Power On/Off
+```shell
+ StartBit_0xE0E040BF
+```
+
+* Volume Up
+```shell
+StartBit_0xE0E0E01F
+```
+
+* Volume Down
+```shell
+StartBit_0xE0E0D02F
+```
+
+* Channel Up
+```shell
+StartBit_0xE0E048B7
+```
+
+* Channel Down
+```shell
+StartBit_0xE0E008F7
+```
+
+# Individual Bits
+* Start Bit
+
+![StartBit](images/start_bit.png)
+
+* One Bit
+
+![OneBit](images/one_bit.png)
+
+* Zero Bit
+
+![ZeroBit](images/zero_bit.png)
