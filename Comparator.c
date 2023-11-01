@@ -6,6 +6,7 @@
  */
 
 #include "xc.h"
+#include "UART2.h"
 
 /**
  * Performs comparator voltage division of the source voltage
@@ -14,13 +15,20 @@
  */
 void CVREFInit(float vref) {
     float CVRSRC = 3.0;
+    uint16_t CVR_value = 0;
+    uint16_t CVRR_value = 0;
+    
     if (vref < 0.83) {
-        CVRCONbits.CVRR = 1;
-        CVRCONbits.CVR = roundf(24*vref / CVRSRC);
+        CVRR_value = 1;
+        CVR_value = roundf(24*vref / CVRSRC);
+        CVRCONbits.CVRR = CVRR_value;
+        CVRCONbits.CVR = CVR_value;
     }
     else if (vref > 2.06) {
-        CVRCONbits.CVRR = 0;
-        CVRCONbits.CVR = roundf(32*(vref - (CVRSRC/4)) / CVRSRC);
+        CVRR_value = 0;
+        CVR_value = roundf(32*(vref - (CVRSRC/4)) / CVRSRC);
+        CVRCONbits.CVRR = CVRR_value;
+        CVRCONbits.CVR = CVR_value;
     } else {
         float cvrr_one = 24*vref / CVRSRC;
         float cvrr_one_remainder = cvrr_one - (uint16_t) cvrr_one;
@@ -29,11 +37,23 @@ void CVREFInit(float vref) {
         float cvrr_zero_remainder = cvrr_zero - (uint16_t) cvrr_zero;
         
         if (cvrr_one_remainder < cvrr_zero_remainder) {
-            CVRCONbits.CVRR = 1;
-            CVRCONbits.CVR = roundf(cvrr_one);
+            CVRR_value = 1;
+            CVR_value = roundf(cvrr_one);
+            CVRCONbits.CVRR = CVRR_value;
+            CVRCONbits.CVR = CVR_value;
+            
         } else {
-            CVRCONbits.CVRR = 0;
-            CVRCONbits.CVR = roundf(cvrr_zero);
+            CVRR_value = 0;
+            CVR_value = roundf(cvrr_zero);
+            CVRCONbits.CVRR = CVRR_value;
+            CVRCONbits.CVR = CVR_value;
+            
         }
     }
+    
+    Disp2String("CVRR = ");
+    Disp2Dec(CVRR_value);
+    Disp2String("CVR = ");
+    Disp2Dec(CVR_value);
+    Disp2String("\n \r");
 }
