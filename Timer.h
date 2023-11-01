@@ -74,11 +74,11 @@ extern "C" {
 }
 #endif /* __cplusplus */
 
-#endif	/* XC_HEADER_TEMPLATE_H */
-
 void SetClk(uint16_t clk);
 void configure_timer_1();
 void configure_timer_2();
 void configure_timer_3();
 void delay_us(uint16_t time_us, uint16_t idle_on);
 void delay_ms(uint16_t time_ms, uint16_t idle_on);
+
+#endif	/* XC_HEADER_TEMPLATE_H */

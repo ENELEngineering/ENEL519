@@ -28,7 +28,7 @@ uint16_t mode=0;
  */
 void __attribute__((interrupt, no_auto_psv))_CNInterrupt(void) {
     IEC1bits.CNIE = 0; // Handle debounce effects by disabling the interrupts.
-    delay_ms(100, 1); // Allow debounces to settle by setting a delay.
+    delay_ms(50, 1); // Allow debounces to settle by setting a delay.
     Nop();
     
     if (IFS1bits.CNIF = 1) {
@@ -112,9 +112,19 @@ void CN_check() {
         else if (RB4_Flag == 0 && RA2_Flag == 0) {
             process_two_press();
         }
-    }    
+    }
+    
+    // This signifies that CN interrupts is disabled, should be re-enabled.
+    if (ninterrupt == 0) {
+        IEC1bits.CNIE = 1; // Re-enable the interrupt.    
+    }
+    
 }
 
+/**
+ * This function determines if the button presses are based on powering on/off
+ * or changing modes to volume or channel changes.
+ */
 void process_two_press() {
     // This flag indicates that both pushbuttons were pressed. This is 
     // used to avoid single press and release to enter this code block.
@@ -126,7 +136,7 @@ void process_two_press() {
                 TMR3 = 0; // Clear timer 3 at the start.
                 Disp2String("\n\r Power ON/OFF\n");
                 start_command(0xE0E040BF);
-                delay_ms(100, 1);
+                delay_ms(50, 1);
             } else {
                 mode = !mode;
                 if (mode == 1) {
@@ -139,6 +149,10 @@ void process_two_press() {
     }
 }
 
+/**
+ * This function determines if the top button is intended for volume up
+ * or channel up based on the selected mode.
+ */
 void process_top_press() {
     if (mode == 1) {
         if (Print_Flag == 1) {
@@ -146,17 +160,21 @@ void process_top_press() {
            Print_Flag = 0;
         }  
         start_command(0xE0E0E01F);
-        delay_ms(100, 1);
+        delay_ms(50, 1);
     } else {
         if (Print_Flag == 1) {
             Disp2String("\n\r Channel Up\n");  
             Print_Flag = 0;
         }
         start_command(0xE0E048B7);
-        delay_ms(100, 1);
+        delay_ms(50, 1);
     }
 }
 
+/**
+ * This function determines if the bottom button is intended for volume 
+ * down or channel down depending on the selected mode.
+ */
 void process_bottom_press() {
     if (mode == 1) {
         if (Print_Flag == 1) {
@@ -164,14 +182,14 @@ void process_bottom_press() {
             Print_Flag = 0;
         }
         start_command(0xE0E0D02F);
-        delay_ms(100, 1);
+        delay_ms(50, 1);
     } else {
         if (Print_Flag == 1) {
             Disp2String("\n\r Channel Down\n");  
             Print_Flag = 0;
         }
         start_command(0xE0E008F7);
-        delay_ms(100, 1);
+        delay_ms(50, 1);
     }
 }
 
@@ -283,20 +301,27 @@ void stop_bit_signal() {
  */
 void start_command(uint32_t command) {
     NewClk(8);
+    // The start bit command indication.
     start_bit_signal();
     uint32_t check_MSB;
-    
+    // There are 32 bits in a given command.
     for (int i = 0; i<32; i++) {
+        // The bit that is being analyzed starts from the most significant bit.
         check_MSB = command & 0x80000000;
         
+        // If the MSB stores a value of 1, then run the 1-bit signal.
         if (check_MSB == 0x80000000) {
             one_bit_signal();
-        } else {
+        }
+        // If the MSB stores a value of 0, then run the 0-bit signal.
+        else {
             zero_bit_signal();
         }
+        // Perform one left bit shifting to analyze each command bit.
         command = command << 1;
     }
     
+    // The following indicates a termination in the command. 
     zero_bit_signal();
     stop_bit_signal();
     return;

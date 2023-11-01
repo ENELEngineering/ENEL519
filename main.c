@@ -5,7 +5,7 @@
  * Created on January 9, 2017, 5:26 PM
  * 
  * Modified by John Santos and Anhela Francees on 
- * October 20, 2023.
+ * October 31, 2023.
  */
 
 #include "xc.h"
@@ -75,9 +75,8 @@ unsigned int i;
 #define dsen() {__asm__ volatile ("BSET DSCON, #15");}
 
 /*
- * 
+ * Main Program Entry Point
  */
-
 int main(void) {
     //Clock output on REFO
     TRISBbits.TRISB15 = 0;  // Set RB15 as output for REFO
@@ -87,8 +86,6 @@ int main(void) {
     REFOCONbits.RODIV = 0b0000;
     OSCTUNbits.TUN = 0b111010;
     
-    // LED on RB8
-    TRISBbits.TRISB8 = 0;
     // Infrared on RB9
     TRISBbits.TRISB9 = 0;
     
@@ -102,12 +99,6 @@ int main(void) {
     while(1) {
         CN_check();
         Idle();        
-        
-        //start_command(0xE0E040BF); //0xE0E040BF
-        //carrier_signal();
-        //one_bit_signal();
-        //_power_on_off();
-        //delay_ms(10, 1);
     }
     return 0;
 }

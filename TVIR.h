@@ -73,7 +73,6 @@ extern "C" {
 #ifdef	__cplusplus
 }
 #endif /* __cplusplus */
-#endif	/* XC_HEADER_TEMPLATE_H */
 
 void CN_init();
 void CN_check();
@@ -86,3 +85,5 @@ void one_bit_signal();
 void zero_bit_signal();
 void stop_bit_signal();
 void start_command(uint32_t command);
+
+#endif	/* XC_HEADER_TEMPLATE_H */
