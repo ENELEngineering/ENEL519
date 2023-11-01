@@ -6,6 +6,8 @@ for app project #1 part a concerning IR transmitter.
 The aim of this assignment is to become familiar with commanding and controlling a
 Samsung TV Wireless Infrared (IR) Remote-Control protocol.
 
+The video demonstration for this project is under this [link](https://www.youtube.com/watch?v=kvhVZCYP1tQ).
+
 # Deliverables
 Using the PIC 24F, you will design an IR Transmitter/Remote-Control app to control a
 Samsung TV by wirelessly sending infrared commands to IR LED connected on PIN13/RB9.
