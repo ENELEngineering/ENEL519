@@ -77,13 +77,12 @@ extern "C" {
 
 void CN_init();
 void CN_check();
+void process_two_press();
+void process_top_press();
+void process_bottom_press();
 void carrier_signal(); 
 void start_bit_signal();
 void one_bit_signal();
 void zero_bit_signal();
 void stop_bit_signal();
-void _power_on_off();
-void _volume_up();
-void _volume_down();
-void _channel_up();
-void _channel_down();
+void start_command(uint32_t command);

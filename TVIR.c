@@ -14,9 +14,8 @@
 #define FCY 4000000UL
 
 // Global Variables
-uint16_t RB4_Flag, RA2_Flag, Print_Flag = 1;
-uint16_t ninterrupt=0;
-uint16_t both_presses=0;
+volatile uint16_t RB4_Flag, RA2_Flag, Print_Flag=1, Two_Press_Flag=0;
+volatile uint16_t ninterrupt=0;
 
 // Configured 0 as Channel Mode and 1 as Volume Mode.
 uint16_t mode=0;
@@ -24,7 +23,6 @@ uint16_t mode=0;
 /* Create the ISR routine. Common interrupt routine for all CN inputs.
  * The interrupt is triggered by any change of state: hi to lo, lo to hi.
  * Interrupts will be triggered for debounces on push buttons too.
- * Clear the interrupt flag.
  * In interrupt routine, check the PORTs to determine 
  * which IO pin had a change of notification.
  */
@@ -41,14 +39,17 @@ void __attribute__((interrupt, no_auto_psv))_CNInterrupt(void) {
     if (PORTBbits.RB4 == 0 && PORTAbits.RA2 == 0) {
         RB4_Flag = 1;
         RA2_Flag = 1;
+        Two_Press_Flag = 1;
     }
     else if (PORTBbits.RB4 == 0 && PORTAbits.RA2 == 1) {
         RB4_Flag = 1;
         RA2_Flag = 0;
+        Two_Press_Flag = 0;
     }
     else if (PORTBbits.RB4 == 1 && PORTAbits.RA2 == 0) {
         RB4_Flag = 0;
         RA2_Flag = 1;
+        Two_Press_Flag = 0;
     }
     else if (PORTBbits.RB4 = 1 && PORTAbits.RA2 == 1) {
         RB4_Flag = 0;
@@ -65,9 +66,6 @@ void __attribute__((interrupt, no_auto_psv))_CNInterrupt(void) {
     if (ninterrupt >= 2) {
         ninterrupt = 0;
     }
-    
-    // Use to debug
-    //Disp2Dec(ninterrupt);
 }
 
 /* 
@@ -99,81 +97,82 @@ void CN_check() {
     if (ninterrupt <= 1) {
         // Detect both push buttons are pressed.
         if (RB4_Flag == 1 && RA2_Flag == 1) {
-            // Debugging purposes.
-            // Disp2String("\n\r CN1/RB4, CN30/RA2 are pressed\n");
             T3CONbits.TON = 1; // Start the 16 bit timer 3.
             TMR3 = 0; // Clear timer 3 at the start.
-            both_presses = 1;
         } 
         // Detect top button RA2 is pressed.
         if (RB4_Flag == 0 && RA2_Flag == 1) {
-            // Debugging purposes.
-            //Disp2String("\n\r RA2 pressed\n"); 
-            if (mode == 1) {
-                if (Print_Flag == 1) {
-                   Disp2String("\n\r Volume Up\n");
-                   Print_Flag = 0;
-                }  
-                _volume_up();
-                delay_ms(60, 1);
-            } else {
-                if (Print_Flag == 1) {
-                    Disp2String("\n\r Channel Up\n");  
-                    Print_Flag = 0;
-                }
-                _channel_up();
-                delay_ms(60, 1);
-            }
-            both_presses = 0;
+            process_top_press();
         }
         // Detect bottom button RB4 is pressed.
         else if (RB4_Flag == 1 && RA2_Flag == 0) {
-            // Debugging purposes.
-            //Disp2String("\n\r RB4 pressed\n");
-            if (mode == 1) {
-                if (Print_Flag == 1) {
-                    Disp2String("\n\r Volume Down\n");  
-                    Print_Flag = 0;
-                }
-                _volume_down();
-                delay_ms(60, 1);
-            } else {
-                if (Print_Flag == 1) {
-                    Disp2String("\n\r Channel Down\n");  
-                    Print_Flag = 0;
-                }
-                _channel_down();
-                delay_ms(60, 1);
-            }
-            both_presses = 0;
+            process_bottom_press();
         }
-        
-        if (both_presses == 1) {
-            // Detect both push buttons are released.
-            if (RB4_Flag == 0 && RA2_Flag == 0) {
-                // Debugging purposes.
-                //Disp2String("\n\r Both released\n");
-                both_presses = 0;
-                if (T3CONbits.TON == 1) {
-                    T3CONbits.TON == 0; // Stop the 16 bit timer 3.
-                    // 2930 translates to 3 seconds at 500KHz clock with 256 prescaler.
-                    if (TMR3 >= 2930) {
-                        TMR3 = 0; // Clear timer 3 at the start.
-                        Disp2String("\n\r Power ON/OFF\n");
-                        _power_on_off();
-                        delay_ms(60, 1);
-                    } else {
-                        mode = !mode;
-                        if (mode == 1) {
-                            Disp2String("\n\r Selected Volume Mode\n");       
-                        } else {
-                            Disp2String("\n\r Selected Channel Mode\n");
-                        } 
-                    }
-                }
-            }
+        // Detect both push buttons are released.
+        else if (RB4_Flag == 0 && RA2_Flag == 0) {
+            process_two_press();
         }
     }    
+}
+
+void process_two_press() {
+    // This flag indicates that both pushbuttons were pressed. This is 
+    // used to avoid single press and release to enter this code block.
+    if (Two_Press_Flag == 1) {
+        if (T3CONbits.TON == 1) {
+            T3CONbits.TON == 0; // Stop the 16 bit timer 3.
+            // 2930 translates to 3 seconds at 500KHz clock with 256 prescaler.
+            if (TMR3 >= 2930) {
+                TMR3 = 0; // Clear timer 3 at the start.
+                Disp2String("\n\r Power ON/OFF\n");
+                start_command(0xE0E040BF);
+                delay_ms(100, 1);
+            } else {
+                mode = !mode;
+                if (mode == 1) {
+                    Disp2String("\n\r Selected Volume Mode\n");       
+                } else {
+                    Disp2String("\n\r Selected Channel Mode\n");
+                } 
+            }
+        }
+    }
+}
+
+void process_top_press() {
+    if (mode == 1) {
+        if (Print_Flag == 1) {
+           Disp2String("\n\r Volume Up\n");
+           Print_Flag = 0;
+        }  
+        start_command(0xE0E0E01F);
+        delay_ms(100, 1);
+    } else {
+        if (Print_Flag == 1) {
+            Disp2String("\n\r Channel Up\n");  
+            Print_Flag = 0;
+        }
+        start_command(0xE0E048B7);
+        delay_ms(100, 1);
+    }
+}
+
+void process_bottom_press() {
+    if (mode == 1) {
+        if (Print_Flag == 1) {
+            Disp2String("\n\r Volume Down\n");  
+            Print_Flag = 0;
+        }
+        start_command(0xE0E0D02F);
+        delay_ms(100, 1);
+    } else {
+        if (Print_Flag == 1) {
+            Disp2String("\n\r Channel Down\n");  
+            Print_Flag = 0;
+        }
+        start_command(0xE0E008F7);
+        delay_ms(100, 1);
+    }
 }
 
 /**
@@ -257,6 +256,10 @@ void zero_bit_signal() {
     return;
 }
 
+/**
+ * A stop bit signal is sending a high signal for atleast 46.82ms indicating
+ * that the end of a command is reached.
+ */
 void stop_bit_signal() {
     T3CONbits.TON = 1; // Start the 16 bit timer 3.
     TMR3 = 0; // Clear timer 3 at the start.
@@ -266,273 +269,35 @@ void stop_bit_signal() {
     }
     T3CONbits.TON == 0; // Stop the 16 bit timer 3.
     TMR3 = 0; // Clear timer 3 at the start.
-//    T3CONbits.TON = 1; // Start the 16 bit timer 3.
-//    TMR3 = 0; // Clear timer 3 at the start.
-//    while(TMR3 <= 782) {
-//        LATBbits.LATB9 = 0;
-//    }
-//    T3CONbits.TON == 0; // Stop the 16 bit timer 3.
-//    TMR3 = 0; // Clear timer 3.
     return;
 }
 
 /**
- * The command in hex is: startbit_0xE0E040BF
- * The command in binary is: startbit_1110_0000_1110_0000_0100_0000_1011_1111
+ * This performs the commands to control a Samsung TV.
+ * Power On/Off: startbit_0xE0E040BF
+ * Volume Up: startbit_0xE0E0E01F
+ * Volume Down: startbit_0xE0E0D02F
+ * Channel Up: startbit_0xE0E048B7
+ * Channel Down: startbit_0xE0E008F7
+ * @param command: 32 bit value representing the command.
  */
-void _power_on_off() {
+void start_command(uint32_t command) {
     NewClk(8);
     start_bit_signal();
+    uint32_t check_MSB;
     
-    one_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    zero_bit_signal();
-    
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    
-    one_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    zero_bit_signal();
+    for (int i = 0; i<32; i++) {
+        check_MSB = command & 0x80000000;
+        
+        if (check_MSB == 0x80000000) {
+            one_bit_signal();
+        } else {
+            zero_bit_signal();
+        }
+        command = command << 1;
+    }
     
     zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    
-    zero_bit_signal();
-    one_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    
-    one_bit_signal();
-    zero_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    
-    one_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    zero_bit_signal();
-    
     stop_bit_signal();
-    return;
-}
-
-/**
- * The command in hex is: startbit_0xE0E0E01F
- * The command in binary is: 1110_0000_1110_0000_1110_0000_0001_1111
- */
-void _volume_up() {
-    NewClk(8);
-    start_bit_signal();
-    
-    one_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    zero_bit_signal();
-    
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    
-    one_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    zero_bit_signal();
-    
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    
-    one_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    zero_bit_signal();
-    
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    one_bit_signal();
-    
-    one_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    
-    //zero_bit_signal();
-    return;
-}
-
-/**
- * The command in hex is: startbit_0xE0E0D02F
- * The command in binary is: 1110_0000_1110_0000_1101_0000_0010_1111
- */
-void _volume_down() {
-    NewClk(8);
-    start_bit_signal();
-    
-    one_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    zero_bit_signal();
-    
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    
-    one_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    zero_bit_signal();
-    
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    
-    one_bit_signal();
-    one_bit_signal();
-    zero_bit_signal();
-    one_bit_signal();
-    
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    
-    zero_bit_signal();
-    zero_bit_signal();
-    one_bit_signal();
-    zero_bit_signal();
-    
-    one_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    
-    //zero_bit_signal();
-    return;
-}
-
-/**
- * The command in hex is: startbit_0xE0E048B7
- * The command in binary is: 1110_0000_1110_0000_0100_1000_1011_0111
- */
-void _channel_up() {
-    NewClk(8);
-    start_bit_signal();
-    
-    one_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    zero_bit_signal();
-    
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    
-    one_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    zero_bit_signal();
-    
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    
-    zero_bit_signal();
-    one_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    
-    one_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    
-    one_bit_signal();
-    zero_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    
-    zero_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    
-    //zero_bit_signal();
-    return;
-}
-
-/**
- * The command in hex is: startbit_0xE0E008F7
- * The command in binary is: 1110_0000_1110_0000_0000_1000_1111_0111
- */
-void _channel_down() {
-    NewClk(8);
-    start_bit_signal();
-    
-    one_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    zero_bit_signal();
-    
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    
-    one_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    zero_bit_signal();
-    
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    
-    one_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    zero_bit_signal();
-    
-    one_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    
-    zero_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    one_bit_signal();
-    
-    //zero_bit_signal();
     return;
 }
