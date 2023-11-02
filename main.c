@@ -96,9 +96,13 @@ int main(void) {
     configure_timer_3();
     CN_init();
     
+    //NewClk(8);
+    
     while(1) {
         CN_check();
-        Idle();        
+        Idle();  
+        
+        //start_command(0xE0E040BF);
     }
     return 0;
 }
