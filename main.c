@@ -94,10 +94,18 @@ int main(void) {
     configure_timer_2();
     configure_timer_3();
     CN_init();
+    
+    //TRISBbits.TRISB2 = 1; // IR Reciever on RB2.
      
     while(1) { 
         CN_check();
         Idle();
+        
+//        if (PORTBbits.RB2 == 1) {
+//            Disp2String("\n\r I was a high signal\n");
+//        } else {
+//            Disp2String("\n\r I was a low signal\n");
+//        }
     }
     return 0;
 }
