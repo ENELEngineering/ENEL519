@@ -62,5 +62,7 @@ void CN_check() {
         Disp2Dec(zeros);
     }
     
-    
+    // Note that if a string is displayed it interrupts 3 times...
+    // However we cant rely on this methodology to determine the final state. 
+    // Should instead rely on the count of ones and zeros to be greater than something.
 }
