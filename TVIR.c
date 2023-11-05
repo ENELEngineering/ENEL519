@@ -279,17 +279,7 @@ void zero_bit_signal() {
  * A stop bit signal is sending a high signal for atleast 46.82ms indicating
  * that the end of a command is reached.
  */
-void stop_bit_signal() {
-//    T3CONbits.TON = 1; // Start the 16 bit timer 3.
-//    TMR3 = 0; // Clear timer 3 at the start.
-//    // 782 represents 50ms on a 8MHz clock with 1:256 prescaler.
-//    while (TMR3 <= 782) {
-//        LATBbits.LATB9 = 0;
-//    }
-//    
-//    T3CONbits.TON == 0; // Stop the 16 bit timer 3.
-//    TMR3 = 0; // Clear timer 3 at the start.
-    
+void stop_bit_signal() {    
     LATBbits.LATB9 = 0;
     __delay32(200000);
     return;
