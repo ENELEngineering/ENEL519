@@ -95,17 +95,21 @@ int main(void) {
     configure_timer_3();
     CN_init();
     
-    //TRISBbits.TRISB2 = 1; // IR Reciever on RB2.
+//    uint32_t command = 0x00000000;
+//    uint32_t mybit = 1;
+//    
+//    for (int i = 0; i<32; i++) {
+//        mybit = 1;
+//        mybit = mybit << (31 - i);
+//        command = command | mybit;
+//    }
+//    Nop();
      
     while(1) { 
         CN_check();
         Idle();
         
-//        if (PORTBbits.RB2 == 1) {
-//            Disp2String("\n\r I was a high signal\n");
-//        } else {
-//            Disp2String("\n\r I was a low signal\n");
-//        }
+        
     }
     return 0;
 }
