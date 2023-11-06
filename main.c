@@ -5,9 +5,8 @@
  * Created on January 9, 2017, 5:26 PM
  * 
  * Modified by John Santos and Anhela Francees on 
- * November 04, 2023.
+ * November 06, 2023.
  */
-
 
 #include "xc.h"
 #include <p24fxxxx.h>
@@ -78,7 +77,6 @@ unsigned int i;
 /*
  * Main Program Entry Point
  */
-
 int main(void) {
     //Clock output on REFO
     TRISBbits.TRISB15 = 0;  // Set RB15 as output for REFO
@@ -108,8 +106,6 @@ int main(void) {
     while(1) { 
         CN_check();
         Idle();
-        
-        
     }
     return 0;
 }

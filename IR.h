@@ -76,6 +76,7 @@ extern "C" {
 
 void CN_init();
 void CN_check();
+void decode_bit();
 
 #endif	/* XC_HEADER_TEMPLATE_H */
 

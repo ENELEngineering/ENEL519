@@ -46,18 +46,7 @@ void __attribute__((interrupt, no_auto_psv))_CNInterrupt(void) {
             T2CONbits.TON == 0; // Stop the 16 bit timer 2.
             // 20000 represents timing of 5 ms common for the length of high signals in start bits.
             if (TMR2 <= 20000) {
-                // 7000 represents timing of 1.80 ms common for the high signals in 1-bit.
-                if (TMR2 <= 7200) {
-                    // 2400 represents timing of 0.80 ms common for the high signals of 0-bit.
-                    if (TMR2 <= 3200) {
-                        decoded_bit = 0; 
-                    } else {
-                        decoded_bit = 1;
-                    }
-                    decoded_bits[count_high-2] = decoded_bit;
-                } else{
-                    decoded_bit = 2;
-                }  
+                decode_bit();
             }
             TMR2 = 0; // Clear timer 2.
         }    
@@ -78,7 +67,7 @@ void CN_init(){
     return;
 }
 
-/**
+/*
  * Check commands received by the IR receiver..
  * Power On/Off: startbit_0xE0E040BF
  * Volume Up: startbit_0xE0E0E01F
@@ -126,4 +115,25 @@ void CN_check() {
         command = 0x00000000;
     }
     return;
+}
+
+/*
+ * This function determines whether the bit that was passed was a 1 or a 0 based
+ * on the high bit. The only difference between the two is that 1-bits have a decoded 
+ * high signal for 1.69ms and 0-bits have a decoded high signal of 0.56ms.
+ */
+void decode_bit() {
+    // 7000 represents timing of 1.80 ms common for the high signals in 1-bit.
+    if (TMR2 <= 7200) {
+        // 2400 represents timing of 0.80 ms common for the high signals of 0-bit.
+        if (TMR2 <= 3200) {
+            decoded_bit = 0; 
+        } else {
+            decoded_bit = 1;
+        }
+        // An offset is two because: (1) ignore start-bit high, (2) indices start at 0.
+        decoded_bits[count_high-2] = decoded_bit;
+    } else{
+        decoded_bit = 2; // ...Not used...
+    }  
 }
