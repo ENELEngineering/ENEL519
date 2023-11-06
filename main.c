@@ -96,11 +96,11 @@ int main(void) {
     CN_init();
     
 //    uint32_t command = 0x00000000;
-//    uint32_t mybit = 1;
+//    uint32_t mybit;
+//    uint32_t mybinary[] = {1,1,1,0,0,0,0,0,1,1,1,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1};
 //    
 //    for (int i = 0; i<32; i++) {
-//        mybit = 1;
-//        mybit = mybit << (31 - i);
+//        mybit = mybinary[i] << (31 - i);
 //        command = command | mybit;
 //    }
 //    Nop();

@@ -13,12 +13,13 @@
 
 #define FCY 4000000UL
 
-volatile uint16_t count_high = 0, count_low = 0;
+volatile uint16_t count_high = 0;
 // This is the hex command received.
 uint32_t command = 0x00000000;
 // This is the bit that was read depending on the timing. 
 // 0 = 0-bit, 1 = 1-bit, 2 = start-bit
 uint32_t decoded_bit;
+// These are the bits that was read.
 uint32_t decoded_bits[32];
 
 /* Create the ISR routine. Common interrupt routine for all CN inputs.
@@ -32,7 +33,6 @@ void __attribute__((interrupt, no_auto_psv))_CNInterrupt(void) {
     IFS1bits.CNIF = 0; // Clear the IF flag.
     
     // Dedicate timer 2 to measuring high signals.
-    
     if (PORTBbits.RB2 == 1) {
         count_high += 1;
         
@@ -40,16 +40,13 @@ void __attribute__((interrupt, no_auto_psv))_CNInterrupt(void) {
         T2CONbits.TON = 1; // Start the 16 bit timer 2.
         TMR2 = 0; // Clear timer 2 at the start.
         
-    } else {
-        count_low += 1;
-        
+    } else { 
         /* Once the signal is low, high signal time is complete */
         if (T2CONbits.TON == 1) {
             T2CONbits.TON == 0; // Stop the 16 bit timer 2.
-            // 20000 represents timing of 5ms common for the length of high signals in start bits.
+            // 20000 represents timing of 5 ms common for the length of high signals in start bits.
             if (TMR2 <= 20000) {
-                
-                // 7000 represents timing of 1.80ms common for the high signals in 1-bit.
+                // 7000 represents timing of 1.80 ms common for the high signals in 1-bit.
                 if (TMR2 <= 7200) {
                     // 2400 represents timing of 0.80 ms common for the high signals of 0-bit.
                     if (TMR2 <= 3200) {
@@ -57,23 +54,14 @@ void __attribute__((interrupt, no_auto_psv))_CNInterrupt(void) {
                     } else {
                         decoded_bit = 1;
                     }
-                    
                     decoded_bits[count_high-2] = decoded_bit;
-//                    if (count_high >= 1) {
-//                        decoded_bit = decoded_bit << (32-count_high);
-//                        command = command | decoded_bit;
-//                    }
-                    
-                    
                 } else{
                     decoded_bit = 2;
                 }  
             }
             TMR2 = 0; // Clear timer 2.
-        }
-         
+        }    
     }
-    
     Nop();
 }
 
@@ -97,32 +85,45 @@ void CN_init(){
  * Volume Down: startbit_0xE0E0D02F
  * Channel Up: startbit_0xE0E048B7
  * Channel Down: startbit_0xE0E008F7
+ * 
+ * Note that if a string is displayed it interrupts 3 times...
+ * However we cant rely on this methodology to determine the final state. 
+ * Should instead rely on the count of high and low signals to be greater than something.
  */
 void CN_check() {  
     
-    if (count_high >= 33 && count_low >= 34) {
-        
-        uint32_t mybit;
+    // In any given command there are 33 counted high signals, 34 counted low signals.
+    if (count_high >= 33) {
+        // Loop through the 32 bits that was received.
         for (int i=0; i<32; i++) {
-            Disp2Dec(decoded_bits[i]);
-            
-            if (decoded_bits[i] == 1) {
-                mybit = 1 << (31 - i);
-            } else {
-                mybit = 0 << (31 - i);
-            }
-            
-            
-            command = command | mybit;
+            decoded_bit = decoded_bits[i] << (31 - i);
+            command = command | decoded_bit;
         }
-        Disp2Dec(command);
-        command = 0x00000000;
+        
+        if (command == 0xE0E040BF) {
+            Disp2String("\n\r TV ON/OFF");  
+        } 
+        else if (command == 0xE0E048B7) {
+            Disp2String("\n\r Channel Mode: Ch Up");  
+        }
+        else if (command == 0xE0E008F7) {
+            Disp2String("\n\r Channel Mode: Ch Down");  
+        }
+        else if (command == 0xE0E0E01F) {
+            Disp2String("\n\r Vol Mode: Vol Up");  
+        } 
+        else if (command == 0xE0E0D02F) {
+            Disp2String("\n\r Vol Mode: Vol Down");  
+        }
+        else {
+            Disp2String("\n\r Unknown Command");  
+        }
+        
+        Disp2Hex32(command);
+        Disp2String("\n");  
+        
         count_high = 0;
-        count_low = 0;
-        //Disp2Dec(count_low);
+        command = 0x00000000;
     }
-    
-    // Note that if a string is displayed it interrupts 3 times...
-    // However we cant rely on this methodology to determine the final state. 
-    // Should instead rely on the count of ones and zeros to be greater than something.
+    return;
 }
