@@ -97,7 +97,7 @@ int main(void) {
     CVRCONbits.CVRSS = 0; // Comparator reference source CVRSRC = AVDD - AVSS.
      
     while(1) {
-        CVREFInit(1.13);
+        CVREFInit(0.00); // Output voltage at CVREF Pin 17
     }
     return 0;
 }
