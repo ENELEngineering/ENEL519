@@ -89,7 +89,7 @@ int main(void) {
     AD1PCFG = 0xFFFF;
    
     // Switch clock: 32 for 32kHz, 500 for 500 kHz, 8 for 8MHz 
-    NewClk(8); 
+    NewClk(32); 
     
     TRISBbits.TRISB14 = 0; // Set to output.
     CVRCONbits.CVREN = 1; // CVREF circuit is powered on.
