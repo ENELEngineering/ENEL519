@@ -41,14 +41,28 @@ void CVREFInit(float vref) {
         float cvrr_zero_remainder = cvrr_zero - (uint16_t) cvrr_zero;
         
         if (cvrr_one_remainder < cvrr_zero_remainder) {
-            CVRR_value = 1;
-            CVR_value = roundf(cvrr_one);
+            
+            if ((uint16_t) cvrr_one > 15) {
+                CVRR_value = 0;
+                CVR_value = roundf(cvrr_zero);
+            } else {
+                CVRR_value = 1;
+                CVR_value = roundf(cvrr_one);
+            }
+            
             CVRCONbits.CVRR = CVRR_value;
             CVRCONbits.CVR = CVR_value;
             
         } else {
-            CVRR_value = 0;
-            CVR_value = roundf(cvrr_zero);
+            
+            if ( (uint16_t) cvrr_zero > 15) {
+                CVRR_value = 1;
+                CVR_value = roundf(cvrr_one);
+            } else {
+                CVRR_value = 0;
+                CVR_value = roundf(cvrr_zero);
+            }
+            
             CVRCONbits.CVRR = CVRR_value;
             CVRCONbits.CVR = CVR_value;
             
