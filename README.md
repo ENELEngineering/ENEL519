@@ -1,14 +1,11 @@
-# Driver Project 1
+# Driver Project 7
 This branch contains the source code that satisfies the requirements presented
-for driver project #1 concerning UART displays.
+for driver project #7 concerning comparators.
 
 # Deliverables
-* Write a function that:
-    - Displays the IO port(s) connected to the push buttons displayed when one or more
-    push buttons are pressed.
-    - For instance terminal window display should show the following when the corresponding push buttons are pressed.
-        * RA2, RB4, and RA4 pressed.
-        * RA2 pressed.
-        * RB4 and RA4 pressed.
-        * No presses.
-    - Blinks the LED every 500 ms when a push button is pressed. Use basic while/for loops for now. We will cover Timers in a subsequent lecture/lab.
+* Create function: void ComparatorInit(void) in C-source file comparator.c and comparator.h 
+* Uses internal clock
+* When called in main(), it should be used to compare voltages between CVREF (1V) and external voltage connected to C2INC/RA3/pin8 using a potentiometer or external DC supply. Verify working by probing C2out on a scope and outputting "C2out hi" or "C2out lo" on PC terminal for the voltage on C2INC exceeding or going below the CVREF voltage.
+* Implement a frequency Divide-by-N Circuit using the PIC24F's comparator. **(OPTIONAL)**
+    - Use PB1 to increment counter N
+    - Use PB2 to enter N and divide a pulse signal for varying frequency (using function generator) connected to C2INC/RA3/pin8. Output the pulse with the divided frequency to pin16/RB3.
