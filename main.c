@@ -8,7 +8,6 @@
  * November 10, 2023.
  */
 
-
 #include "xc.h"
 #include <p24fxxxx.h>
 #include <p24F16KA101.h>
@@ -61,7 +60,6 @@
 #pragma config DSWDTOSC = LPRC // DeepSleep WDT uses Lo Power RC clk
 #pragma config DSWDTPS = DSWDTPS7 // DSWDT postscaler set to 32768 
 
-
 // GLOBAL VARIABLES
 unsigned int temp;
 unsigned int i;
@@ -74,7 +72,7 @@ unsigned int i;
 #define dsen() {__asm__ volatile ("BSET DSCON, #15");}
 
 /*
- * 
+ * Main Program Entry Point
  */
 
 int main(void) {
