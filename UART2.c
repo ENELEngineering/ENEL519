@@ -128,8 +128,6 @@ void __attribute__ ((interrupt, no_auto_psv)) _U2TXInterrupt(void) {
 }
 
 
-
-
 // Displays 16 bit number in Hex form using UART2
 void Disp2Hex(unsigned int DispData)   
 {

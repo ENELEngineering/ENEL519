@@ -16,6 +16,7 @@
 #include <errno.h>
 #include "ChangeClk.h"
 #include "UART2.h"
+#include "comparator.h"
 
 //// CONFIGURATION BITS ////
 
@@ -86,9 +87,16 @@ int main(void) {
     AD1PCFG = 0xFFFF;
     
     // Switch clock: 32 for 32kHz, 500 for 500 kHz, 8 for 8MHz 
-    NewClk(32); 
-     
-    while(1) { }
+    NewClk(8);
+    
+    TRISAbits.TRISA3 = 1; // Set RA3 as input.
+    TRISAbits.TRISA6 = 0; // Set RA6 as output
+    
+    while(1) {
+        ComparatorInit();
+        //Idle();
+        
+    }
       
     return 0;
 }
