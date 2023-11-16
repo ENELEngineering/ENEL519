@@ -6,6 +6,7 @@
  */
 
 #include "xc.h"
+#include "UART2.h"
 
 void __attribute__((interrupt, no_auto_psv))__CompInterrupt(void) {
     
@@ -77,4 +78,14 @@ void ComparatorInit(void) {
     // CMSTATbits.C2EVT <= Comparator 2 event status bit is a read only.
     // CMSTATbits.C2OUT <= Comparator 2 output status but is a read only.
     
+    // CVREF setup
+    float CVRSRC = 3.0; // Microcontroller input voltage.
+    uint16_t CVR_value = 0; // Comparator vref value selection bits.
+    uint16_t CVRR_value = 0; // Comparator vref range selection bit.
+    
+    // compare CVREF voltage to external voltage (from power supply) fed to the comparator
+    // if (C2out_v > CVREF_v) {
+        // Disp2String("C2out hi");
+    // else {
+        // Disp2String("C2out lo");
 }
