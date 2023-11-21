@@ -75,7 +75,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 void ComparatorInit(void);
-CVREFInit(float vref);
+void CVREFInit(float vref);
 
 #endif	/* XC_HEADER_TEMPLATE_H */
 

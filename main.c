@@ -84,25 +84,23 @@ int main(void) {
     REFOCONbits.ROSEL = 0; // Output base clk showing clock switching
     REFOCONbits.RODIV = 0b0000;
     OSCTUNbits.TUN = 0b111010;
-    //AD1PCFG = 0xFFFF;
+    AD1PCFG = 0xFFFF;
     
     // Switch clock: 32 for 32kHz, 500 for 500 kHz, 8 for 8MHz 
     NewClk(32);
-    
-//    TRISAbits.TRISA3 = 1; // Set RA3 as input.
-//    TRISAbits.TRISA6 = 0; // Set RA6 as output
-    
-    // from CVREF project
-    TRISBbits.TRISB14 = 0; // Set to output.
+ 
+    // CVREF configuration
     CVRCONbits.CVREN = 1; // CVREF circuit is powered on.
     CVRCONbits.CVROE = 1; // CVREF voltage level is output on CVREF pin.
     CVRCONbits.CVRSS = 0; // Comparator reference source CVRSRC = AVDD - AVSS.
-    CVREFInit(1.0); // Output voltage at CVREF Pin 17
+    TRISBbits.TRISB14 = 0; // Set to output.
+    
+    // The ask is 1V, but there is 0.25V voltage drop with comparators. 
+    CVREFInit(1.25); // Output voltage at CVREF Pin 17
+    ComparatorInit();
     
     while(1) {
-        ComparatorInit();
         Idle();
     }
-      
     return 0;
 }
