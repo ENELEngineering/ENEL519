@@ -5,12 +5,14 @@
  * Created on November 16, 2023, 12:27 PM
  */
 
+#include <libpic30.h>
 #include <math.h>
 #include "xc.h"
 #include "ZSense.h"
 #include "Timer.h"
 #include "UART2.h"
 
+#define FCY 16000UL
 
 /* Configure CTMU settings configurations and initializations.
  * @param current_bits: 0=>current source is disabled
@@ -44,7 +46,7 @@ void configure_ADC_AD1CON1(void) {
     AD1CON1bits.ADON = 1; // A/D converter module is operating for current.
     AD1CON1bits.ADSIDL = 0; // Continue module operation in idle mode.
     AD1CON1bits.FORM = 0b00; // Data output format should be saved as an integer.
-    AD1CON1bits.SSRC = 0b000; // Clearing SAMP bit ends sampling and starts conversion.
+    AD1CON1bits.SSRC = 0b111; // Clearing SAMP bit ends sampling and starts conversion.
     AD1CON1bits.ASAM = 0; // Sampling begins when SAMP bit is set.
     // Clear the A/D Conversion status bit.
     AD1CON1bits.DONE = 1; // A/D conversion is done.
@@ -99,9 +101,9 @@ unsigned int do_ADC(void) {
      /*---------- ADC SAMPLING AND CONVERSION - CAN BE A DIFFERENT FUNCTION ----------*/
     AD1CON1bits.SAMP = 1; // A/D sample/hold amplifier is sampling input.
     
-//    while(AD1CON1bits.DONE==0) { 
-//        //delay_sec(1, idle_on);
-//    }
+    while(AD1CON1bits.DONE==0) { 
+        __delay32(1600);
+    }
     ADCvalue = ADC1BUF0; // ADC output is stored in ADC1BUF0 as this point.
     
     AD1CON1bits.SAMP = 0; // Stop sampling
