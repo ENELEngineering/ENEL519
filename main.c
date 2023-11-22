@@ -96,7 +96,7 @@ int main(void) {
     TRISBbits.TRISB14 = 0; // Set to output.
     
     // The ask is 1V, but there is 0.25V voltage drop with comparators. 
-    CVREFInit(1.25); // Output voltage at CVREF Pin 17
+    CVREFInit(1.00); // Output voltage at CVREF Pin 17
     ComparatorInit();
     
     while(1) {
