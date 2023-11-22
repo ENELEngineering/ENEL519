@@ -12,9 +12,6 @@
 
 #include "UART2.h"
 
-
-
-
 unsigned int clkval;
 
 ///// Initialization of UART 2 module.

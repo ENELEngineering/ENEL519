@@ -5,7 +5,7 @@
  * Created on January 9, 2017, 5:26 PM
  * 
  * Modified by John Santos and Anhela Francees on 
- * November 10, 2023.
+ * November 22, 2023.
  */
 
 #include "xc.h"
@@ -94,8 +94,7 @@ int main(void) {
     CVRCONbits.CVROE = 1; // CVREF voltage level is output on CVREF pin.
     CVRCONbits.CVRSS = 0; // Comparator reference source CVRSRC = AVDD - AVSS.
     TRISBbits.TRISB14 = 0; // Set to output.
-    
-    // The ask is 1V, but there is 0.25V voltage drop with comparators. 
+     
     CVREFInit(1.00); // Output voltage at CVREF Pin 17
     ComparatorInit();
     
