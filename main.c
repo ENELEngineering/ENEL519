@@ -87,24 +87,20 @@ int main(void) {
     AD1PCFG = 0xFFFF;
     
     // Switch clock: 32 for 32kHz, 500 for 500 kHz, 8 for 8MHz 
-    NewClk(8);
-    
-    TRISAbits.TRISA3 = 1; // Set RA3 as input.
-    TRISAbits.TRISA6 = 0; // Set RA6 as output
-    
-    // from CVREF project
-    TRISBbits.TRISB14 = 0; // Set to output.
+    NewClk(32);
+ 
+    // CVREF configuration
     CVRCONbits.CVREN = 1; // CVREF circuit is powered on.
     CVRCONbits.CVROE = 1; // CVREF voltage level is output on CVREF pin.
     CVRCONbits.CVRSS = 0; // Comparator reference source CVRSRC = AVDD - AVSS.
+    TRISBbits.TRISB14 = 0; // Set to output.
     
-    TRISBbits.TRISB13 = 1; //Configure current sourcing pin as Analog Input for ADC
+    // The ask is 1V, but there is 0.25V voltage drop with comparators. 
+    CVREFInit(1.25); // Output voltage at CVREF Pin 17
+    ComparatorInit();
     
     while(1) {
-        CTMUinit();
-        //Idle();
-        
+        Idle();  
     }
-      
     return 0;
 }

@@ -51,17 +51,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=ChangeClk.c main.c UART2.c comparator.c
+SOURCEFILES_QUOTED_IF_SPACED=ChangeClk.c main.c UART2.c comparator.c ZSense.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/ChangeClk.o ${OBJECTDIR}/main.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/comparator.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/ChangeClk.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/UART2.o.d ${OBJECTDIR}/comparator.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/ChangeClk.o ${OBJECTDIR}/main.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/comparator.o ${OBJECTDIR}/ZSense.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/ChangeClk.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/UART2.o.d ${OBJECTDIR}/comparator.o.d ${OBJECTDIR}/ZSense.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/ChangeClk.o ${OBJECTDIR}/main.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/comparator.o
+OBJECTFILES=${OBJECTDIR}/ChangeClk.o ${OBJECTDIR}/main.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/comparator.o ${OBJECTDIR}/ZSense.o
 
 # Source Files
-SOURCEFILES=ChangeClk.c main.c UART2.c comparator.c
+SOURCEFILES=ChangeClk.c main.c UART2.c comparator.c ZSense.c
 
 
 
@@ -113,6 +113,12 @@ ${OBJECTDIR}/comparator.o: comparator.c  .generated_files/flags/default/7fce56a4
 	@${RM} ${OBJECTDIR}/comparator.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  comparator.c  -o ${OBJECTDIR}/comparator.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/comparator.o.d"      -g -D__DEBUG     -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
 	
+${OBJECTDIR}/ZSense.o: ZSense.c  .generated_files/flags/default/57e979aec661d16c0fc858786072f052430ee425 .generated_files/flags/default/da39a3ee5e6b4b0d3255bfef95601890afd80709
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/ZSense.o.d 
+	@${RM} ${OBJECTDIR}/ZSense.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ZSense.c  -o ${OBJECTDIR}/ZSense.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/ZSense.o.d"      -g -D__DEBUG     -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	
 else
 ${OBJECTDIR}/ChangeClk.o: ChangeClk.c  .generated_files/flags/default/a5c0787bf182448248d0096ffd8aa2872a8eb969 .generated_files/flags/default/da39a3ee5e6b4b0d3255bfef95601890afd80709
 	@${MKDIR} "${OBJECTDIR}" 
@@ -137,6 +143,12 @@ ${OBJECTDIR}/comparator.o: comparator.c  .generated_files/flags/default/7ec7f659
 	@${RM} ${OBJECTDIR}/comparator.o.d 
 	@${RM} ${OBJECTDIR}/comparator.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  comparator.c  -o ${OBJECTDIR}/comparator.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/comparator.o.d"        -g -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	
+${OBJECTDIR}/ZSense.o: ZSense.c  .generated_files/flags/default/bdbff671c886d973c6122ea1a5024be6543ea7fb .generated_files/flags/default/da39a3ee5e6b4b0d3255bfef95601890afd80709
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/ZSense.o.d 
+	@${RM} ${OBJECTDIR}/ZSense.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ZSense.c  -o ${OBJECTDIR}/ZSense.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/ZSense.o.d"        -g -omf=elf -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
 	
 endif
 

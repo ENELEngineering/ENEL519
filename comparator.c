@@ -7,19 +7,38 @@
 
 #include "xc.h"
 #include "UART2.h"
+#include "comparator.h"
 
-void __attribute__((interrupt, no_auto_psv))__CompInterrupt(void) {
-    
-    Disp2String("\n\r I am interrupted \n");
-    
+uint16_t ninterrupts = 0;
+uint16_t previous_c2out = 0;
+
+void __attribute__((interrupt, no_auto_psv)) _CompInterrupt(void) {
     if (IFS1bits.CMIF == 1) {
-        // If interrupt is due to comparator 2.
-        if (CMSTATbits.C2OUT == 1) {
-            Disp2String("\n\r C2out hi\n");
-        } else {
-            Disp2String("\n\r C2out low\n");
+        ninterrupts += 1;
+    }
+    
+    // If interrupt is due to comparator 2.
+    if (CMSTATbits.C2OUT == 1) {
+        // Only display messages once. 
+        if (ninterrupts <= 1) {
+            // CPOL is 1 which means CREF < C2INC.
+            Disp2String("C2out hi \r");
         }
     }
+    else {
+        // Only display messages once.
+        if (ninterrupts <= 1) {
+            // CPOL is 1 which means CREF > C2INC
+            Disp2String("C2out lo\r");
+        }
+    }
+    
+    // This condition means there's been a change of state, thus reset the number of interrupts.
+    if (previous_c2out != CMSTATbits.C2OUT) {
+        ninterrupts = 0;
+    }
+    // Record the previous value of C2Out.
+    previous_c2out = CMSTATbits.C2OUT;
     
     IFS1bits.CMIF = 0; // Clear the IF flag.
     CM2CONbits.CEVT = 0; // Interrupts disabled till this bit is cleared.
@@ -30,20 +49,20 @@ void __attribute__((interrupt, no_auto_psv))__CompInterrupt(void) {
  * Comparator Setup 
  */
 void ComparatorInit(void) {
+    //CM2CONbits.CON = 0; // Comparator 2 enable.
     CM2CONbits.CON = 1; // Comparator 2 enable.
     CM2CONbits.COE = 1; // Comparator 2 output enable.
     CM2CONbits.CPOL = 1; // Comparator 2 output is inverted.
     CM2CONbits.CLPWR = 0; // Comparator 2 does not operate in low power mode.
-    CM2CONbits.CEVT = 1; // Comparator event has occurred. 
-    CM2CONbits.EVPOL = 0b11; // Trigger/event/interrupt generated on any change of the comparator output.
+    
+    CM2CONbits.EVPOL = 3; // Trigger/event/interrupt generated on any change of the comparator output.
     CM2CONbits.CREF = 1; // Comparator non inverting input connects to internal CVRef voltage.
     CM2CONbits.CCH = 0b01; // Inverting input of comparator connects to CxINC pin.
-    CMSTATbits.CMIDL = 0; // Continue operation of all enabled comparators in idle. mode.
+    CMSTATbits.CMIDL = 0; // Continue operation of all enabled comparators in idle mode.
+    CM2CONbits.CEVT = 0; // Comparator event bit.
     
-    IPC4bits.CMIP = 0b111; // Set priority to level 7
-    IEC1bits.CMIE = 1;  // Enable Comparator Interrupt
-    
-    // CMSTATbits.C2EVT <= Comparator 2 event status bit is a read only.
+    IPC4bits.CMIP = 1; // Set priority to level 7
+    IEC1bits.CMIE = 1;  // Enable Comparator Interrupt 
     return;
 }
 
@@ -107,12 +126,5 @@ void CVREFInit(float vref) {
             
         }
     }
-    
-    // Display the final states.
-//    Disp2String("CVRR = ");
-//    Disp2Dec(CVRR_value);
-//    Disp2String("CVR = ");
-//    Disp2Dec(CVR_value);
-//    Disp2String("\n \r");
     return;
 }

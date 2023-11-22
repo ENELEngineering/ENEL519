@@ -7,6 +7,7 @@
 
 
 #include "xc.h"
+#include "ZSense.h"
 
 void CTMUinit(void) {
     
@@ -43,5 +44,11 @@ void CTMUinit(void) {
     
     AD1PCFGbits.PCFG11 = 0;
     AD1CSSLbits.CSSL11 = 0;
-    return 0;
+    
+    return;
+}
+
+void RSense(void) {
+    
+    return;
 }

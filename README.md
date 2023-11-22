@@ -1,11 +1,10 @@
-# Driver Project 7
+# Driver Project 8
 This branch contains the source code that satisfies the requirements presented
-for driver project #7 concerning comparators.
+for driver project #8 concerning CTMU.
 
 # Deliverables
-* Create function: void ComparatorInit(void) in C-source file comparator.c and comparator.h 
-* Uses internal clock
-* When called in main(), it should be used to compare voltages between CVREF (1V) and external voltage connected to C2INC/RA3/pin8 using a potentiometer or external DC supply. Verify working by probing C2out on a scope and outputting "C2out hi" or "C2out lo" on PC terminal for the voltage on C2INC exceeding or going below the CVREF voltage.
-* Implement a frequency Divide-by-N Circuit using the PIC24F's comparator. **(OPTIONAL)**
-    - Use PB1 to increment counter N
-    - Use PB2 to enter N and divide a pulse signal for varying frequency (using function generator) connected to C2INC/RA3/pin8. Output the pulse with the divided frequency to pin16/RB3.
+* Create function CTMUinit() and RSense() in ZSense.c to measure resistance on pin 16/AN11/RB13 using CTMU on the PIC.
+* CTMUinit(): Initializes the CTMU settings
+* RSense(): Measures the resistance of resistor connected measurements.
+    - Use the CTMU current source at 5.5uA and known 100 k-ohm resistor (Measured exactly with multi-meter) to measure voltage across resistor using ADC. Display ADC voltage and calculated resistance value on Terminal - Determine CTMU current value if resistor value is known.
+    - Use the CTMU current source at 55uA and 100 k-ohm resistor (Measured with multi-meter) to measure voltage across resistor using ADC. Display ADC voltage and calculated resistance value on Terminal - Determine exact/measured CTMU current value from previous 2 steps. Use this value in App project 2.
