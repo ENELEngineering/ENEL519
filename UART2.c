@@ -9,11 +9,7 @@
 #include "xc.h"
 #include "math.h"
 #include "string.h"
-
 #include "UART2.h"
-
-
-
 
 unsigned int clkval;
 
@@ -184,7 +180,7 @@ void Disp2Hex32(unsigned long int DispData32)   // Displays 32 bit number in Hex
     return;
 }
 
-// Displays 16 bit unsigned in in decimal form
+// Displays 16 bit unsigned int in decimal form
 void Disp2Dec(uint16_t Dec_num)
 {
     uint8_t rem;  //remainder in div by 10
@@ -202,6 +198,40 @@ void Disp2Dec(uint16_t Dec_num)
     // XmitUART2('\n',1);  // new line
     // XmitUART2('\r',1);  // carriage return
    
+    return;
+}
+
+/**
+ * Displays floating numbers
+ * @param float_num Can only be two digits and two decimal places. Ex. 10.10
+ */
+void Disp2Float(float float_num) {
+    uint8_t rem;  //remainder in div by 10
+    uint16_t quot; 
+    uint8_t ctr = 0;  //counter
+    XmitUART2(' ',1);  // Disp Gap
+    
+    uint16_t whole_num = (uint16_t) float_num; 
+    uint16_t remain = (float_num - whole_num) * 100; // Rounded to 2 decimal places.
+    
+    while (ctr<2) {
+        quot = whole_num/(pow(10,(1-ctr)));
+        rem = quot%10;
+        XmitUART2(rem + 0x30 , 1);
+        ctr = ctr + 1;
+    }
+            
+    XmitUART2('.', 1); // This is the decimal place.
+    
+    ctr = 0;  //counter
+    while(ctr<2)
+    {
+        quot = remain/(pow(10,(1-ctr)));
+        rem = quot%10;
+        XmitUART2(rem + 0x30 , 1);
+        ctr = ctr + 1;
+    }
+    XmitUART2(' ',1);  // Disp Gap
     return;
 }
 

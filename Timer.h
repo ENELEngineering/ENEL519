@@ -28,8 +28,8 @@
 
 // This is a guard condition so that contents of this file are not included
 // more than once.  
-#ifndef XC_ZSENSE_H
-#define	XC_ZSENSE_H
+#ifndef XC_HEADER_TEMPLATE_H
+#define	XC_HEADER_TEMPLATE_H
 
 #include <xc.h> // include processor files - each processor file is guarded.  
 
@@ -74,12 +74,12 @@ extern "C" {
 }
 #endif /* __cplusplus */
 
-void CTMUinit(void);
-void configure_ADC_AD1CON1(void);
-void configure_ADC_AD1CON2(void);
-void configure_ADC_AD1CON3(void);
-unsigned int do_ADC(void);
-void RSense(void);
+void SetClk(uint16_t clk);
+void configure_timer_1();
+void configure_timer_2();
+void configure_timer_3();
+void delay_ms(uint16_t time_ms, uint16_t idle_on);
+void delay_sec(uint16_t time_sec, uint16_t idle_on);
 
 #endif	/* XC_HEADER_TEMPLATE_H */
 

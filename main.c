@@ -16,7 +16,7 @@
 #include <errno.h>
 #include "ChangeClk.h"
 #include "UART2.h"
-#include "comparator.h"
+#include "ZSense.h"
 
 //// CONFIGURATION BITS ////
 
@@ -75,7 +75,6 @@ unsigned int i;
 /*
  * Main Program Entry Point
  */
-
 int main(void) {
     //Clock output on REFO
     TRISBbits.TRISB15 = 0;  // Set RB15 as output for REFO
@@ -87,20 +86,11 @@ int main(void) {
     AD1PCFG = 0xFFFF;
     
     // Switch clock: 32 for 32kHz, 500 for 500 kHz, 8 for 8MHz 
-    NewClk(32);
- 
-    // CVREF configuration
-    CVRCONbits.CVREN = 1; // CVREF circuit is powered on.
-    CVRCONbits.CVROE = 1; // CVREF voltage level is output on CVREF pin.
-    CVRCONbits.CVRSS = 0; // Comparator reference source CVRSRC = AVDD - AVSS.
-    TRISBbits.TRISB14 = 0; // Set to output.
-    
-    // The ask is 1V, but there is 0.25V voltage drop with comparators. 
-    CVREFInit(1.25); // Output voltage at CVREF Pin 17
-    ComparatorInit();
+    NewClk(32); 
     
     while(1) {
-        Idle();  
+        RSense();
+        //Idle();  
     }
     return 0;
 }

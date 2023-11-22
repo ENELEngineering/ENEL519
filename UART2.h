@@ -29,6 +29,7 @@ void Disp2Hex(unsigned int);
 void Disp2Hex32(unsigned long int);
 void Disp2String(char*);
 void Disp2Dec(unsigned int);
+void Disp2Float(float float_num);
 
 #endif	/* UART2_H */
 
