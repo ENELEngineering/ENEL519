@@ -22,7 +22,7 @@
  */
 void CTMUinit(uint8_t current_bits) {
     CTMUCONbits.CTMUEN = 1; // Enable CTMU
-    //CTMUCONbits.CTMUSIDL = 0; // Continue module operation in idle mode.
+    CTMUCONbits.CTMUSIDL = 0; // Continue module operation in idle mode.
     CTMUCONbits.TGEN = 0; // Disable edge delay generation for SW control.
     CTMUCONbits.EDGEN = 0; // Edges are blocked for SW control.
     CTMUCONbits.EDGSEQEN = 0; // No edge sequence is needed for SW control.
