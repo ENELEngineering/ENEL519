@@ -5,41 +5,33 @@
  * Created on November 10, 2023, 3:51 PM
  */
 
+#include <libpic30.h>
 #include "xc.h"
 #include "UART2.h"
 #include "comparator.h"
 
-uint16_t ninterrupts = 0;
-uint16_t previous_c2out = 0;
+#define FCY 16000UL
 
 void __attribute__((interrupt, no_auto_psv)) _CompInterrupt(void) {
     if (IFS1bits.CMIF == 1) {
-        ninterrupts += 1;
-    }
+        __delay32(1600);
     
-    // If interrupt is due to comparator 2.
-    if (CMSTATbits.C2OUT == 1) {
-        // Only display messages once. 
-        if (ninterrupts <= 1) {
+        // If interrupt is due to comparator 2.
+        if (CM2CONbits.COUT) {
             // CPOL is 1 which means CREF < C2INC.
-            Disp2String("C2out hi \r");
+            if (CMSTATbits.C2OUT == 1) {
+
+                Disp2String("C2out hi \r");
+            }
         }
-    }
-    else {
-        // Only display messages once.
-        if (ninterrupts <= 1) {
+        else {
             // CPOL is 1 which means CREF > C2INC
-            Disp2String("C2out lo\r");
+            if (CMSTATbits.C2OUT == 0) {
+                Disp2String("C2out lo\r");
+            }
+
         }
     }
-    
-    // This condition means there's been a change of state, thus reset the number of interrupts.
-    if (previous_c2out != CMSTATbits.C2OUT) {
-        ninterrupts = 0;
-    }
-    // Record the previous value of C2Out.
-    previous_c2out = CMSTATbits.C2OUT;
-    
     IFS1bits.CMIF = 0; // Clear the IF flag.
     CM2CONbits.CEVT = 0; // Interrupts disabled till this bit is cleared.
     Nop();
