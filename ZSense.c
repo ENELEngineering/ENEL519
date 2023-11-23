@@ -20,7 +20,7 @@
  *                      2=>5.5uA 10 x base current
  *                      3=>55uA 100 x base current
  */
-void CTMUinit(void) {
+void CTMUinit(uint8_t current_bits) {
     CTMUCONbits.CTMUEN = 1; // Enable CTMU
     //CTMUCONbits.CTMUSIDL = 0; // Continue module operation in idle mode.
     CTMUCONbits.TGEN = 0; // Disable edge delay generation for SW control.
@@ -34,7 +34,7 @@ void CTMUinit(void) {
     CTMUCONbits.EDG2STAT = 0; // Edge 2 event has not occurred.
    
     CTMUICONbits.ITRIM = 0b000000; // Nominal current output specified by IRNG<1:0>
-    CTMUICONbits.IRNG = 3; // for 5.5 uA  
+    CTMUICONbits.IRNG = current_bits; // for 5.5 uA  
     return;
 }
 
@@ -123,26 +123,36 @@ unsigned int do_ADC(void) {
  */
 void RSense(void) {
     
-    CTMUinit();
-    uint16_t ADCvalue = do_ADC();
-    
     float known_current = 55E-6;
     float known_resistance = 9900;
-  
+            
+    if (known_current == 55E-6) {
+        CTMUinit(3);
+    }
+    else if (known_current == 5.5E-6) {
+        CTMUinit(2);
+    }
+    else if (known_current == 0.55E-6) {
+        CTMUinit(1);
+    } 
+    else {
+        CTMUinit(0);
+    }
+    
+    uint16_t ADCvalue = do_ADC();
     
     float voltage = ADCvalue * 3.25/pow(2,10);
     float resistance = (voltage/known_current)/1000; // Convert to KOhms
-    float current = (voltage/known_resistance)*1000000;
+    float current = (voltage/known_resistance)*1000000; // Convert to uA
     
-    Disp2String("\r Voltage: ");
+    Disp2String("\r Voltage (meas): ");
     Disp2Float(voltage);
-    Disp2String(" Volts ");
-    Disp2String(" Resistance: ");
+    Disp2String("V");
+    Disp2String(" Resistance (calc): ");
     Disp2Float(resistance);
-    Disp2String(" KOhms ");
-    Disp2String("Current: ");
+    Disp2String("KOhms");
+    Disp2String(" Current (calc): ");
     Disp2Float(current);
-    Disp2String(" uA \n\r");
-    
+    Disp2String("uA\n\r");
     return;
 }

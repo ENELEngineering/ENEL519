@@ -3,13 +3,13 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/johns/Documents/EngineeringRepositories/ENEL519/main.c</file>
-            <file>file:/C:/Users/johns/Documents/EngineeringRepositories/ENEL519/ZSense.c</file>
             <file>file:/C:/Users/johns/Documents/EngineeringRepositories/ENEL519/ZSense.h</file>
-            <file>file:/C:/Users/johns/Documents/EngineeringRepositories/ENEL519/Timer.c</file>
-            <file>file:/C:/Users/johns/Documents/EngineeringRepositories/ENEL519/Timer.h</file>
             <file>file:/C:/Users/johns/Documents/EngineeringRepositories/ENEL519/UART2.c</file>
             <file>file:/C:/Users/johns/Documents/EngineeringRepositories/ENEL519/UART2.h</file>
+            <file>file:/C:/Users/johns/Documents/EngineeringRepositories/ENEL519/ZSense.c</file>
+            <file>file:/C:/Users/johns/Documents/EngineeringRepositories/ENEL519/Timer.h</file>
+            <file>file:/C:/Users/johns/Documents/EngineeringRepositories/ENEL519/main.c</file>
+            <file>file:/C:/Users/johns/Documents/EngineeringRepositories/ENEL519/Timer.c</file>
         </group>
     </open-files>
 </project-private>
