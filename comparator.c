@@ -13,28 +13,26 @@
 #define FCY 16000UL
 
 void __attribute__((interrupt, no_auto_psv)) _CompInterrupt(void) {
+    IEC1bits.CMIE = 0;  // Disable Comparator Interrupt 
+    CM2CONbits.COUT = 0;
+   
     if (IFS1bits.CMIF == 1) {
-        __delay32(1600);
-    
-        // If interrupt is due to comparator 2.
-        if (CM2CONbits.COUT) {
-            // CPOL is 1 which means CREF < C2INC.
-            if (CMSTATbits.C2OUT == 1) {
-
-                Disp2String("C2out hi \r");
-            }
+        __delay32(8000);
+        // CPOL is 1 which means CREF < C2INC.
+        if (CMSTATbits.C2OUT == 1) {
+            Disp2String("C2out hi \r");
         }
+        // CPOL is 1 which means CREF > C2INC
         else {
-            // CPOL is 1 which means CREF > C2INC
-            if (CMSTATbits.C2OUT == 0) {
-                Disp2String("C2out lo\r");
-            }
-
+            Disp2String("C2out lo\r");
         }
     }
     IFS1bits.CMIF = 0; // Clear the IF flag.
     CM2CONbits.CEVT = 0; // Interrupts disabled till this bit is cleared.
+    IEC1bits.CMIE = 1;  // Enable Comparator Interrupt 
+    CM2CONbits.COUT = 1;
     Nop();
+    return;
 }
 
 /*
@@ -53,7 +51,7 @@ void ComparatorInit(void) {
     CMSTATbits.CMIDL = 0; // Continue operation of all enabled comparators in idle mode.
     CM2CONbits.CEVT = 0; // Comparator event bit.
     
-    IPC4bits.CMIP = 1; // Set priority to level 7
+    IPC4bits.CMIP = 1; // Set priority to level 1
     IEC1bits.CMIE = 1;  // Enable Comparator Interrupt 
     return;
 }
