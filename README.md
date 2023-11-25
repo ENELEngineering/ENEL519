@@ -1,10 +1,20 @@
-# Driver Project 8
+# App Project 2
 This branch contains the source code that satisfies the requirements presented
-for driver project #8 concerning CTMU.
+for app project #2 concerning capacitance measurements.
 
 # Deliverables
-* Create function CTMUinit() and RSense() in ZSense.c to measure resistance on pin 16/AN11/RB13 using CTMU on the PIC.
-* CTMUinit(): Initializes the CTMU settings
-* RSense(): Measures the resistance of resistor connected measurements.
-    - Use the CTMU current source at 5.5uA and known 100 k-ohm resistor (Measured exactly with multi-meter) to measure voltage across resistor using ADC. Display ADC voltage and calculated resistance value on Terminal - Determine CTMU current value if resistor value is known.
-    - Use the CTMU current source at 55uA and 100 k-ohm resistor (Measured with multi-meter) to measure voltage across resistor using ADC. Display ADC voltage and calculated resistance value on Terminal - Determine exact/measured CTMU current value from previous 2 steps. Use this value in App project 2.
+* Implement a capacitance measuring app on pin 16/AN11/RB13 using the CTMU on the PIC. Name source files ZSense.C and ZSense.h
+    - App should be capable of measuring the capacitance of between 10pF and 1mF.
+    - App should display the value of the capacitance on a single line of PC terminal window including units (in pF, nF, uF).
+    - App should display the value of the capacitance vs. time over a minute on a Python Graph including units (in pF, nF, uF).
+    - Verify the working of your code by measuring the capacitance between 10pF and 1mF.
+
+# CTMU Mathematical Estimates
+* pF - nF Caps: 1uA
+* uF Caps: 10s of uA
+* mF Caps: 10s of uA
+* Capacitance values vs Rise Time to 2.5V?
+* Smallest Capacitance measured?
+    - Constraints: Timer
+* Largest Capacitance measured?
+    - Constraints: Timer and leakage current.
