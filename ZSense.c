@@ -61,7 +61,7 @@ void configure_ADC_AD1CON2(void) {
     AD1CON2bits.VCFG = 0b000; // Voltage reference configuration VR+ = AVdd and VR- = AVss.
     AD1CON2bits.CSCNA = 0; // Do not scan inputs.
     // Sample/convert sequences per interrupt selection bits.
-    //AD1CON2bits.SMPI = 0b0000; // Interrupts at the completion of conversion for each sample/convert sequence.
+    AD1CON2bits.SMPI = 0b0000; // Interrupts at the completion of conversion for each sample/convert sequence.
     AD1CON2bits.BUFM = 0; // Buffer configured as one 16-word buffer.
     AD1CON2bits.ALTS = 0; // Always use MUX A input multiplexer settings.
     return;
@@ -123,8 +123,8 @@ unsigned int do_ADC(void) {
  */
 void RSense(void) {
     
-    float known_current = 55E-6;
-    float known_resistance = 9900;
+    float known_current = 5.5E-6;
+    float known_resistance = 100000;
             
     if (known_current == 55E-6) {
         CTMUinit(3);

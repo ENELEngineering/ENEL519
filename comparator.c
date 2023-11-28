@@ -5,44 +5,34 @@
  * Created on November 10, 2023, 3:51 PM
  */
 
+#include <libpic30.h>
 #include "xc.h"
 #include "UART2.h"
 #include "comparator.h"
 
-uint16_t ninterrupts = 0;
-uint16_t previous_c2out = 0;
+#define FCY 16000UL
 
 void __attribute__((interrupt, no_auto_psv)) _CompInterrupt(void) {
+    IEC1bits.CMIE = 0;  // Disable Comparator Interrupt 
+    CM2CONbits.COUT = 0;
+   
     if (IFS1bits.CMIF == 1) {
-        ninterrupts += 1;
-    }
-    
-    // If interrupt is due to comparator 2.
-    if (CMSTATbits.C2OUT == 1) {
-        // Only display messages once. 
-        if (ninterrupts <= 1) {
-            // CPOL is 1 which means CREF < C2INC.
+        __delay32(8000);
+        // CPOL is 1 which means CREF < C2INC.
+        if (CMSTATbits.C2OUT == 1) {
             Disp2String("C2out hi \r");
         }
-    }
-    else {
-        // Only display messages once.
-        if (ninterrupts <= 1) {
-            // CPOL is 1 which means CREF > C2INC
+        // CPOL is 1 which means CREF > C2INC
+        else {
             Disp2String("C2out lo\r");
         }
     }
-    
-    // This condition means there's been a change of state, thus reset the number of interrupts.
-    if (previous_c2out != CMSTATbits.C2OUT) {
-        ninterrupts = 0;
-    }
-    // Record the previous value of C2Out.
-    previous_c2out = CMSTATbits.C2OUT;
-    
     IFS1bits.CMIF = 0; // Clear the IF flag.
     CM2CONbits.CEVT = 0; // Interrupts disabled till this bit is cleared.
+    IEC1bits.CMIE = 1;  // Enable Comparator Interrupt 
+    CM2CONbits.COUT = 1;
     Nop();
+    return;
 }
 
 /*
@@ -61,7 +51,7 @@ void ComparatorInit(void) {
     CMSTATbits.CMIDL = 0; // Continue operation of all enabled comparators in idle mode.
     CM2CONbits.CEVT = 0; // Comparator event bit.
     
-    IPC4bits.CMIP = 1; // Set priority to level 7
+    IPC4bits.CMIP = 1; // Set priority to level 1
     IEC1bits.CMIE = 1;  // Enable Comparator Interrupt 
     return;
 }
