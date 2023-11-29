@@ -123,8 +123,8 @@ unsigned int do_ADC(void) {
  */
 void RSense(void) {
     
-    float known_current = 55E-6;
-    float known_resistance = 9900;
+    float known_current = 5.5E-6;
+    float known_resistance = 9890;
             
     if (known_current == 55E-6) {
         CTMUinit(3);
