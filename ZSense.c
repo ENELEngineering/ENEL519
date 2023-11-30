@@ -33,7 +33,7 @@ void CTMUinit(uint8_t current_bits) {
     CTMUCONbits.EDG1STAT = 1; // Edge 1 event has occurred.
     CTMUCONbits.EDG2STAT = 0; // Edge 2 event has not occurred.
    
-    CTMUICONbits.ITRIM = 0b000000; // Nominal current output specified by IRNG<1:0>
+    CTMUICONbits.ITRIM = 0b111110; // Nominal current output specified by IRNG<1:0>
     CTMUICONbits.IRNG = current_bits; // for 5.5 uA  
     return;
 }
@@ -124,7 +124,7 @@ unsigned int do_ADC(void) {
 void RSense(void) {
     
     float known_current = 5.5E-6;
-    float known_resistance = 100000;
+    float known_resistance = 99790;
             
     if (known_current == 55E-6) {
         CTMUinit(3);
