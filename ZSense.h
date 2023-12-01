@@ -75,10 +75,6 @@ extern "C" {
 #endif /* __cplusplus */
 
 void CTMUinit(uint8_t current_bits);
-void configure_ADC_AD1CON1(void);
-void configure_ADC_AD1CON2(void);
-void configure_ADC_AD1CON3(void);
-unsigned int do_ADC(void);
 void RSense(void);
 
 #endif	/* XC_HEADER_TEMPLATE_H */
