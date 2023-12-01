@@ -23,6 +23,8 @@
       <itemPath>ZSense.h</itemPath>
       <itemPath>Timer.c</itemPath>
       <itemPath>Timer.h</itemPath>
+      <itemPath>ADC.c</itemPath>
+      <itemPath>ADC.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
