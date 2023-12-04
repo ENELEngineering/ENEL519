@@ -5,9 +5,11 @@
  * Created on November 30, 2023, 5:43 PM
  */
 
-
+#include <libpic30.h>
 #include "xc.h"
+#include "ADC.h"
 
+#define FCY 16000UL
 /*
  * Provide ADC settings configuration and initializations.
  * Set bits in AD1CON1 register.
@@ -31,7 +33,7 @@ void configure_ADC_AD1CON2(void) {
     AD1CON2bits.VCFG = 0b000; // Voltage reference configuration VR+ = AVdd and VR- = AVss.
     AD1CON2bits.CSCNA = 0; // Do not scan inputs.
     // Sample/convert sequences per interrupt selection bits.
-    AD1CON2bits.SMPI = 0b0000; // Interrupts at the completion of conversion for each sample/convert sequence.
+    //AD1CON2bits.SMPI = 0b0000; // Interrupts at the completion of conversion for each sample/convert sequence.
     AD1CON2bits.BUFM = 0; // Buffer configured as one 16-word buffer.
     AD1CON2bits.ALTS = 0; // Always use MUX A input multiplexer settings.
     return;
@@ -63,25 +65,23 @@ unsigned int do_ADC(void) {
     
     // Select and configure ADC input.
     AD1CHSbits.CH0NA = 0; // Channel 0 negative input is VR-.
-    AD1CHSbits.CH0SA = 0b1011; // Channel 0 positive input is AN11.
+    AD1CHSbits.CH0SA = 0b0101; // Channel 0 positive input is AN5.
     AD1PCFGbits.PCFG11 = 0; // Pin configured in Analog mode; I/O port read disabled; A/D samples pin voltage.
     AD1CSSLbits.CSSL11 = 0; // Analog channel omitted from input scan.
-    TRISBbits.TRISB13 = 1; // Analog pin to measure voltage is set as an input.
+    TRISAbits.TRISA3 = 1; // Analog pin to measure voltage is set as an input.
     
-     /*---------- ADC SAMPLING AND CONVERSION - CAN BE A DIFFERENT FUNCTION ----------*/
+    /*---------- ADC SAMPLING AND CONVERSION - CAN BE A DIFFERENT FUNCTION ----------*/
     AD1CON1bits.SAMP = 1; // A/D sample/hold amplifier is sampling input.
     
     while(AD1CON1bits.DONE==0) { 
         __delay32(1600);
     }
-    ADCvalue = ADC1BUF0; // ADC output is stored in ADC1BUF0 as this point.
     
+    // Stop ADC sampling
     AD1CON1bits.SAMP = 0; // Stop sampling
-    AD1CON1bits.ADON=0; // Turn off ADC, ADC value stored in ADC1BUFO.
+    AD1CON1bits.ADON = 0; // Turn off ADC, ADC value stored in ADC1BUFO.
     AD1CON1bits.DONE = 1; // A/D conversion is done.
     
-    // Stop current
-    CTMUCONbits.EDG1STAT = 1; 
-    CTMUCONbits.EDG2STAT = 1; 
-    return (ADCvalue); // Returns 10 bit ADC output stored in ADC1BIFO to calling function.
+    ADCvalue = ADC1BUF0; // ADC output is stored in ADC1BUF0 as this point. 
+    return ADCvalue; // Returns 10 bit ADC output stored in ADC1BIFO to calling function.
 }

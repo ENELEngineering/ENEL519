@@ -25,6 +25,8 @@
       <itemPath>Timer.h</itemPath>
       <itemPath>ADC.c</itemPath>
       <itemPath>ADC.h</itemPath>
+      <itemPath>CTMU.c</itemPath>
+      <itemPath>CTMU.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

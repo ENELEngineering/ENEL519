@@ -5,64 +5,28 @@
  * Created on November 16, 2023, 12:27 PM
  */
 
-#include <libpic30.h>
 #include <math.h>
 #include "xc.h"
-#include "ZSense.h"
-#include "ADC.h"
-#include "Timer.h"
 #include "UART2.h"
-
-#define FCY 16000UL
-
-/* Configure CTMU settings configurations and initializations.
- * @param current_bits: 0=>current source is disabled
- *                      1=>0.55uA nominal current source
- *                      2=>5.5uA 10 x base current
- *                      3=>55uA 100 x base current
- */
-void CTMUinit(uint8_t current_bits) {
-    CTMUCONbits.CTMUEN = 1; // Enable CTMU
-    CTMUCONbits.CTMUSIDL = 0; // Continue module operation in idle mode.
-    CTMUCONbits.TGEN = 0; // Disable edge delay generation for SW control.
-    CTMUCONbits.EDGEN = 0; // Edges are blocked for SW control.
-    CTMUCONbits.EDGSEQEN = 0; // No edge sequence is needed for SW control.
-    CTMUCONbits.IDISSEN = 0; // Analog current source output is not grounded
-    CTMUCONbits.CTTRIG = 0; // Trigger output is disabled for SW control.
-    
-    // 10, or 01 for SW control of current source is turned on.
-    CTMUCONbits.EDG1STAT = 1; // Edge 1 event has occurred.
-    CTMUCONbits.EDG2STAT = 0; // Edge 2 event has not occurred.
-   
-    CTMUICONbits.ITRIM = 0b111110; // Nominal current output specified by IRNG<1:0>
-    CTMUICONbits.IRNG = current_bits; // for 5.5 uA  
-    return;
-}
+#include "ZSense.h"
+#include "CTMU.h"
+#include "ADC.h"
 
 /**
- * Measure the resistance value depending on the voltage and the current supplied 
- * at the pin.
+ * Measure the resistance value depending on the voltage 
+ * and the current supplied at the pin.
  * OHM's law: R = V/I
  */
 void RSense(void) {
     
     float known_current = 5.5E-6;
     float known_resistance = 99790;
-            
-    if (known_current == 55E-6) {
-        CTMUinit(3);
-    }
-    else if (known_current == 5.5E-6) {
-        CTMUinit(2);
-    }
-    else if (known_current == 0.55E-6) {
-        CTMUinit(1);
-    } 
-    else {
-        CTMUinit(0);
-    }
     
+    // 0.00uA => 0, 0.55uA => 1, 5.5uA => 2, 55uA => 3
+    CTMUinit(2);
+    start_current();
     uint16_t ADCvalue = do_ADC();
+    stop_current();
     
     float voltage = ADCvalue * 3.25/pow(2,10);
     float resistance = (voltage/known_current)/1000; // Convert to KOhms
@@ -77,5 +41,33 @@ void RSense(void) {
     Disp2String(" Current (calc): ");
     Disp2Float(current);
     Disp2String("uA\n\r");
+    
     return;
+}
+
+void CSense(void) {
+    
+}
+
+/**
+ * Starts the current CTMU source at AN5. 
+ * Also ensures the source is not grounded. 
+ */
+void start_current(void) {
+    // Start current
+    CTMUCONbits.IDISSEN = 0; // Analog current source output is not grounded.
+    // 10, or 01 for SW control of current source is turned on.
+    CTMUCONbits.EDG1STAT = 1; // Edge 1 event has occurred.
+    CTMUCONbits.EDG2STAT = 0; // Edge 2 event has not occurred.
+}
+
+/**
+ * Stop the current CTMU source at AN5.
+ * Also ensures to ground the remaining current.
+ */
+void stop_current(void) {
+   // Stop current
+    CTMUCONbits.EDG1STAT = 1; 
+    CTMUCONbits.EDG2STAT = 1;  
+    CTMUCONbits.IDISSEN = 1; // Analog current source output is grounded.
 }

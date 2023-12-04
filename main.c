@@ -5,7 +5,7 @@
  * Created on January 9, 2017, 5:26 PM
  * 
  * Modified by John Santos and Anhela Francees on 
- * November 10, 2023.
+ * December 4, 2023.
  */
 
 #include "xc.h"
@@ -17,6 +17,7 @@
 #include "ChangeClk.h"
 #include "UART2.h"
 #include "ZSense.h"
+#include "comparator.h"
 
 //// CONFIGURATION BITS ////
 
@@ -87,6 +88,9 @@ int main(void) {
     
     // Switch clock: 32 for 32kHz, 500 for 500 kHz, 8 for 8MHz 
     NewClk(32); 
+    
+    CVREFInit(2.00); // Output voltage at CVREF Pin 17
+    ComparatorInit();
     
     while(1) {
         RSense();

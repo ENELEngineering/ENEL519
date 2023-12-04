@@ -62,6 +62,13 @@ void ComparatorInit(void) {
  * @param vref The voltage to output at PIN17 which is the CVREF pin.
  */
 void CVREFInit(float vref) {
+    
+    // CVREF configuration
+    CVRCONbits.CVREN = 1; // CVREF circuit is powered on.
+    CVRCONbits.CVROE = 1; // CVREF voltage level is output on CVREF pin.
+    CVRCONbits.CVRSS = 0; // Comparator reference source CVRSRC = AVDD - AVSS.
+    TRISBbits.TRISB14 = 0; // Set to output.
+    
     float CVRSRC = 3.0; // Microcontroller input voltage.
     uint16_t CVR_value = 0; // Comparator vref value selection bits.
     uint16_t CVRR_value = 0; // Comparator vref range selection bit.
@@ -113,7 +120,6 @@ void CVREFInit(float vref) {
             
             CVRCONbits.CVRR = CVRR_value;
             CVRCONbits.CVR = CVR_value;
-            
         }
     }
     return;
