@@ -19,6 +19,7 @@ import serial  # pip install pyserial
 import time
 import pandas as pd
 import plotly.express as px
+import decimal
 
 
 ## OPEN SERIAL PORT 
@@ -54,7 +55,16 @@ rxNumsStr = rxNumsStr.strip() # remove unwanted chars and spaces
 rxNumsList = rxNumsStr.split(' \n ')  # split string by \n n store in list
 print(rxNumsList)
 rxNumsList = [float(elem) for elem in rxNumsList]  # convert char in List into int
-unit = 'pF' # add logic to extract the correct unit (pF, nF, or uF)
+temp = decimal.Decimal(rxNumsList[1])
+if (abs(temp.as_tuple().exponent) > 12):
+    unit = 'pF' # add logic to extract the correct unit (pF, nF, or uF)
+elif (abs(temp.as_tuple().exponent) <= 12 & abs(temp.as_tuple().exponent) > 9):
+    unit = 'nF' # add logic to extract the correct unit (pF, nF, or uF)
+elif (abs(temp.as_tuple().exponent) <= 9 & abs(temp.as_tuple().exponent) > 6):
+    unit = 'uF' # add logic to extract the correct unit (pF, nF, or uF)
+elif (abs(temp.as_tuple().exponent) <= 6 & abs(temp.as_tuple().exponent) > 3):
+    unit = 'mF' # add logic to extract the correct unit (pF, nF, or uF)
+
 
 # print(rxNumsList)       #check
 print(len(rxTimesList))
