@@ -5,26 +5,28 @@
  * Created on November 10, 2023, 3:51 PM
  */
 
-#include <libpic30.h>
 #include "xc.h"
 #include "UART2.h"
 #include "comparator.h"
+#include "Timer.h"
 
-#define FCY 16000UL
+uint16_t interrupt_flag = 0;
 
 void __attribute__((interrupt, no_auto_psv)) _CompInterrupt(void) {
     IEC1bits.CMIE = 0;  // Disable Comparator Interrupt 
     CM2CONbits.COUT = 0;
    
     if (IFS1bits.CMIF == 1) {
-        __delay32(8000);
+        delay_ms(500, 0);
         // CPOL is 1 which means CREF < C2INC.
         if (CMSTATbits.C2OUT == 1) {
             Disp2String("C2out hi \r");
+            interrupt_flag = 1;
         }
         // CPOL is 1 which means CREF > C2INC
         else {
             Disp2String("C2out lo\r");
+            interrupt_flag = 0;
         }
     }
     IFS1bits.CMIF = 0; // Clear the IF flag.
@@ -33,6 +35,14 @@ void __attribute__((interrupt, no_auto_psv)) _CompInterrupt(void) {
     CM2CONbits.COUT = 1;
     Nop();
     return;
+}
+
+uint16_t check_interrupt(void) {
+    return interrupt_flag;
+}
+
+void reset_interrupt(void) {
+    interrupt_flag = 0;
 }
 
 /*

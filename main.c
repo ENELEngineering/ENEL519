@@ -18,6 +18,7 @@
 #include "UART2.h"
 #include "ZSense.h"
 #include "comparator.h"
+#include "Timer.h"
 
 //// CONFIGURATION BITS ////
 
@@ -87,13 +88,15 @@ int main(void) {
     AD1PCFG = 0xFFFF;
     
     // Switch clock: 32 for 32kHz, 500 for 500 kHz, 8 for 8MHz 
-    NewClk(32); 
+    SetClk(8); 
     
+    configure_timer_1();
+    configure_timer_2();
     CVREFInit(2.00); // Output voltage at CVREF Pin 17
     ComparatorInit();
     
     while(1) {
-        RSense();
+        CSense();
         //Idle();  
     }
     return 0;

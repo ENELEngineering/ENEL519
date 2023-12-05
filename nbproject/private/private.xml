@@ -3,13 +3,16 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/new%20ZSI%20Github/ENEL519/comparator.c</file>
-            <file>file:/C:/new%20ZSI%20Github/ENEL519/comparator.h</file>
-            <file>file:/C:/new%20ZSI%20Github/ENEL519/main.c</file>
-            <file>file:/C:/new%20ZSI%20Github/ENEL519/ZSense.c</file>
-            <file>file:/C:/new%20ZSI%20Github/ENEL519/ZSense.h</file>
-            <file>file:/C:/new%20ZSI%20Github/ENEL519/ADC.c</file>
-            <file>file:/C:/new%20ZSI%20Github/ENEL519/ADC.h</file>
+            <file>file:/C:/Users/johns/Documents/EngineeringRepositories/ENEL519/ZSense.h</file>
+            <file>file:/C:/Users/johns/Documents/EngineeringRepositories/ENEL519/comparator.c</file>
+            <file>file:/C:/Users/johns/Documents/EngineeringRepositories/ENEL519/UART2.c</file>
+            <file>file:/C:/Users/johns/Documents/EngineeringRepositories/ENEL519/ADC.c</file>
+            <file>file:/C:/Users/johns/Documents/EngineeringRepositories/ENEL519/CTMU.h</file>
+            <file>file:/C:/Users/johns/Documents/EngineeringRepositories/ENEL519/ZSense.c</file>
+            <file>file:/C:/Users/johns/Documents/EngineeringRepositories/ENEL519/main.c</file>
+            <file>file:/C:/Users/johns/Documents/EngineeringRepositories/ENEL519/comparator.h</file>
+            <file>file:/C:/Users/johns/Documents/EngineeringRepositories/ENEL519/CTMU.c</file>
+            <file>file:/C:/Users/johns/Documents/EngineeringRepositories/ENEL519/Timer.c</file>
         </group>
     </open-files>
 </project-private>

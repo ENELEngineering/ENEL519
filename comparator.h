@@ -74,6 +74,8 @@ extern "C" {
 }
 #endif /* __cplusplus */
 
+uint16_t check_interrupt(void);
+void reset_interrupt(void);
 void ComparatorInit(void);
 void CVREFInit(float vref);
 

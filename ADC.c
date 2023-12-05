@@ -5,11 +5,10 @@
  * Created on November 30, 2023, 5:43 PM
  */
 
-#include <libpic30.h>
 #include "xc.h"
 #include "ADC.h"
+#include "Timer.h"
 
-#define FCY 16000UL
 /*
  * Provide ADC settings configuration and initializations.
  * Set bits in AD1CON1 register.
@@ -74,7 +73,7 @@ unsigned int do_ADC(void) {
     AD1CON1bits.SAMP = 1; // A/D sample/hold amplifier is sampling input.
     
     while(AD1CON1bits.DONE==0) { 
-        __delay32(1600);
+        delay_ms(100, 0);
     }
     
     // Stop ADC sampling
