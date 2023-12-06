@@ -53,3 +53,5 @@ dkms.conf
 
 *.zip
 .generated_files/*
+
+app-env/

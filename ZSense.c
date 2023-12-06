@@ -130,12 +130,12 @@ void CSense(void) {
     di = 5.5E-6; // Preset in the CTMU.
     capacitance = compute_capacitance(dv, di, dt);
    
-    capacitance /= 1E-6;
+    capacitance = capacitance / 1E-6;
     dt /= 1E-3;
     
     Disp2String("\r Capacitance: ");
     Disp2Float(capacitance);
-    Disp2String("uF\r");
+    Disp2String("uF\n");
     return;
 }
 
