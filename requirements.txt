@@ -1,3 +1,5 @@
 numpy
 pyserial
 pandas
+matplotlib
+plotly

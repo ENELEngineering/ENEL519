@@ -54,4 +54,6 @@ dkms.conf
 *.zip
 .generated_files/*
 
+# App Project Files.
 app-env/
+*.csv
