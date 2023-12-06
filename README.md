@@ -18,3 +18,27 @@ for app project #2 concerning capacitance measurements.
     - Constraints: Timer
 * Largest Capacitance measured?
     - Constraints: Timer and leakage current.
+
+# State Diagram
+
+![StateDiagram](images/state_diagram.png)
+
+# Challenges
+This application project is not fully functional across all capacitance values.
+Some challenges encountered are as follows:
+
+1) Comparator needs a high voltage ~3.17V at the start of the program.
+2) ADV voltage reading across the capacitor decreases most of the time as CTMU current charges the circuit.
+3) Specific timing and specific CTMU current values are required for specific capacitances. This is
+difficult to be handled using ADC alone, whereas if the comparator was functional, then it can be handled
+by waiting for the comparator to interrupt and measure the timing to get dt whilst keeping current constant and dv is
+known because final voltage value is CVRef for which the comparator basis its interrupt.
+
+Consider the following values observed for specific current, timing, and capacitances.
+* Capacitance, Current, Timing, PR3
+
+  1uF,         55uA,    1.75ms, 7000
+
+  0.1uF,       5.5uA,   62.5us, 250
+  
+  1nF,         5.5uA,   1.25us, 5

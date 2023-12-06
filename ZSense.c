@@ -71,7 +71,7 @@ void CSense(void) {
     CTMUCONbits.CTMUEN = 1;  // Turn on CTMU.
     CTMUCONbits.IDISSEN = 1; // Drain charge on the circuit.
     
-    /****** Delay for 260 ms ******/
+    /****** Delay for 1 second ******/
     delay_sec(1, 0);
     ADCvalue = do_ADC();
     start_voltage = (ADCvalue * 3.25/pow(2,10));
@@ -84,7 +84,7 @@ void CSense(void) {
     start_current();
     CTMUCONbits.IDISSEN = 0; // End drain of circuit.
     
-    // Check for comparator to interrupt within 6ms.
+    // Check for comparator to interrupt within 62.5 us.
     while(TMR3 <= 250) {
         // Check if interrupt occurred in comparator, method returns 1 meaning interrupt occurred, otherwise it returns 0.
         comparator_interrupt = check_interrupt();
