@@ -79,6 +79,7 @@ void CSense(void);
 void start_current(void);
 void stop_current(void);
 float compute_capacitance(float voltage, float current, float time);
+float compute_resistance(float voltage, float current);
 
 #endif	/* XC_HEADER_TEMPLATE_H */
 

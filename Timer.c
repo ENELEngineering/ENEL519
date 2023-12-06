@@ -64,7 +64,7 @@ void configure_timer_1() {
 void configure_timer_2() {
     T2CONbits.TCS = 0; // Use the internal clock fosc/2.
     T2CONbits.TSIDL = 0; // Continue module operation at idle.
-    T2CONbits.TCKPS = 0b11; // Clock prescaler uses 1:256 scaling.
+    T2CONbits.TCKPS = 0b00; // Clock prescaler uses 1:1 scaling.
     T2CONbits.T32 = 0; // Timer2 and Timer3 act as two 16 bit timers.
     IPC1bits.T2IP = 0b111; // Priority level is 7.
     IEC0bits.T2IE = 1; // Enable the interrupt.
@@ -79,7 +79,7 @@ void configure_timer_2() {
 void configure_timer_3() {
     T3CONbits.TCS = 0; // Use the internal clock fosc/2.
     T3CONbits.TSIDL = 0; // Continue module operation at idle.
-    T3CONbits.TCKPS = 0b11; // Clock prescaler uses 1:256 scaling.
+    T3CONbits.TCKPS = 0b11; // Clock prescaler uses 1:1 scaling.
     IPC2bits.T3IP = 0b111; // Priority level is 7.
     IEC0bits.T3IE = 1; // Enable the interrupt.
     IFS0bits.T3IF = 0; // Clear the interrupt flag;
@@ -87,14 +87,30 @@ void configure_timer_3() {
 }
 
 /*
+ * Provides a delay in microseconds.
+ * @param time_us The microsecond delay to perform (uint16_t).
+ * @param idle_on Set to 1 to idle.
+ */
+void delay_us(uint16_t time_us, uint16_t idle_on) {
+    T2CONbits.TON = 1; // Start the 16 bit timer 2.
+    TMR2 = 0; // Clear timer 2 at the start.
+    PR2 = (uint16_t) (time_us * set_clk)/2; // Assumes using 8MHz clock and 1:1 scaling.
+    
+    if (idle_on == 1) {
+        Idle();
+    }
+    return;
+}
+
+/*
  * Provide a delay in milliseconds.
- * @param time_ms: The millisecond delay to perform (uint16_t).
- * @param idle_on: Set to 1 to idle.
+ * @param time_ms The millisecond delay to perform (uint16_t).
+ * @param idle_on Set to 1 to idle.
  */
 void delay_ms(uint16_t time_ms, uint16_t idle_on) {
     T1CONbits.TON = 1; // Start the 16 bit timer 1.
     TMR1 = 0; // Clear timer 1 at the start.
-    PR1 = (uint16_t) (time_ms * set_clk * 1000)/512; // Assumes using either 8MHz clock and 1:256 scaling.
+    PR1 = (uint16_t) (time_ms * set_clk * 1000)/512; // Assumes using 8MHz clock and 1:256 scaling.
     
     if (idle_on == 1) {
         Idle();
@@ -104,13 +120,13 @@ void delay_ms(uint16_t time_ms, uint16_t idle_on) {
 
 /**
  * Provide a delay in seconds.
- * @param time_us: The second delay to perform (uint16_t)
- * @param idle_on: Set to 1 to idle.
+ * @param time_us The second delay to perform (uint16_t)
+ * @param idle_on Set to 1 to idle.
  */
 void delay_sec(uint16_t time_sec, uint16_t idle_on) {
     T1CONbits.TON = 1; // Start the 16 bit timer 1.
     TMR1 = 0; // Clear timer 1 at the start.
-    PR1 = (uint16_t) (time_sec * set_clk * 1000)/2; // Assumes using an 32KHz clock at 1:1 scaling.
+    PR1 = (uint16_t) (time_sec * set_clk * 1E6)/512; // Assumes using an 8MHz clock at 1:256 scaling.
     
     if (idle_on == 1){
         Idle();

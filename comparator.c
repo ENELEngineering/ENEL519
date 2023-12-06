@@ -5,30 +5,36 @@
  * Created on November 10, 2023, 3:51 PM
  */
 
-#include "xc.h"
+#include "ChangeClk.h"
 #include "UART2.h"
+#include "xc.h"
 #include "comparator.h"
 #include "Timer.h"
 
 uint16_t interrupt_flag = 0;
+uint16_t previous_interrupt = -1; // 0 for lo, 1 for hi.
 
 void __attribute__((interrupt, no_auto_psv)) _CompInterrupt(void) {
     IEC1bits.CMIE = 0;  // Disable Comparator Interrupt 
     CM2CONbits.COUT = 0;
-   
+    
     if (IFS1bits.CMIF == 1) {
-        delay_ms(500, 0);
-        // CPOL is 1 which means CREF < C2INC.
-        if (CMSTATbits.C2OUT == 1) {
-            Disp2String("C2out hi \r");
-            interrupt_flag = 1;
-        }
-        // CPOL is 1 which means CREF > C2INC
-        else {
-            Disp2String("C2out lo\r");
-            interrupt_flag = 0;
-        }
+        delay_sec(1, 0); 
+        if (CMSTATbits.C2OUT != previous_interrupt) {
+            previous_interrupt = CMSTATbits.C2OUT;
+            // CPOL is 1 which means CREF < C2INC.
+            if (CMSTATbits.C2OUT == 1) {
+                //Disp2String("C2out hi \r");
+                interrupt_flag = 1;
+            }
+            // CPOL is 1 which means CREF > C2INC
+            else {
+                //Disp2String("C2out lo\r");
+                interrupt_flag = 0;
+            }
+        } 
     }
+    
     IFS1bits.CMIF = 0; // Clear the IF flag.
     CM2CONbits.CEVT = 0; // Interrupts disabled till this bit is cleared.
     IEC1bits.CMIE = 1;  // Enable Comparator Interrupt 

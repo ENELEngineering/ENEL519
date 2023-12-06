@@ -5,7 +5,7 @@
  * Created on January 9, 2017, 5:26 PM
  * 
  * Modified by John Santos and Anhela Francees on 
- * December 4, 2023.
+ * December 5, 2023.
  */
 
 #include "xc.h"
@@ -16,9 +16,10 @@
 #include <errno.h>
 #include "ChangeClk.h"
 #include "UART2.h"
+#include "Timer.h"
 #include "ZSense.h"
 #include "comparator.h"
-#include "Timer.h"
+#include "CTMU.h"
 
 //// CONFIGURATION BITS ////
 
@@ -90,13 +91,18 @@ int main(void) {
     // Switch clock: 32 for 32kHz, 500 for 500 kHz, 8 for 8MHz 
     SetClk(8); 
     
+    CNPD2bits.CN29PDE = 1;
     configure_timer_1();
     configure_timer_2();
-    CVREFInit(2.00); // Output voltage at CVREF Pin 17
+    configure_timer_3();
+    CVREFInit(2.16); // Output voltage at CVREF Pin 17
     ComparatorInit();
+    // 0.00uA => 0, 0.55uA => 1, 5.5uA => 2, 55uA => 3
+    CTMUinit(2);
     
     while(1) {
         CSense();
+        //RSense();
         //Idle();  
     }
     return 0;

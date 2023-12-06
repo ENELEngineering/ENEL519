@@ -5,14 +5,17 @@
  * Created on November 16, 2023, 12:27 PM
  */
 
+#include <libpic30.h>
 #include <math.h>
 #include "xc.h"
 #include "UART2.h"
 #include "ZSense.h"
-#include "CTMU.h"
 #include "ADC.h"
 #include "comparator.h"
 #include "Timer.h"
+
+#define FCY 4000000UL
+
 /**
  * Measure the resistance value depending on the voltage 
  * and the current supplied at the pin.
@@ -20,29 +23,29 @@
  */
 void RSense(void) {
     
-    float known_current = 5.5E-6;
-    float known_resistance = 99790;
+    /****** Drain the charge on the circuit ******/
+    CTMUCONbits.CTMUEN = 1;  // Turn on CTMU.
+    CTMUCONbits.IDISSEN = 1; // Drain charge on the circuit.
     
-    // 0.00uA => 0, 0.55uA => 1, 5.5uA => 2, 55uA => 3
-    CTMUinit(2);
+    /****** Delay for 260 ms ******/
+    delay_ms(260, 0);
+    CTMUCONbits.IDISSEN = 0; // End drain of circuit.
+    
+    /****** Start the charge on the circuit ******/
     start_current();
     uint16_t ADCvalue = do_ADC();
     stop_current();
     
     float voltage = ADCvalue * 3.25/pow(2,10);
-    float resistance = (voltage/known_current)/1000; // Convert to KOhms
-    float current = (voltage/known_resistance)*1000000; // Convert to uA
+    float resistance = compute_resistance(voltage, 5.5E-6);
+    resistance /= 1000; // Convert to KOhms
     
-    Disp2String("\r Voltage (meas): ");
+    Disp2String("\r Voltage: ");
     Disp2Float(voltage);
     Disp2String("V");
-    Disp2String(" Resistance (calc): ");
+    Disp2String(" Resistance: ");
     Disp2Float(resistance);
     Disp2String("KOhms");
-    Disp2String(" Current (calc): ");
-    Disp2Float(current);
-    Disp2String("uA\n\r");
-    
     return;
 }
 
@@ -52,68 +55,87 @@ void RSense(void) {
  * is used to find the capacitance. 
  */
 void CSense(void) {
-    uint16_t comparator_interrupt = 0;
+    
+    float capacitance = 0;
+    float start_voltage = 0;
+    float final_voltage = 0;
     float dt = 0;
     float dv = 0;
+    float di = 0;
+    float pr3 = 0;
     
-    /****** Start timer 2 to measure 1 second ******/
-    T3CONbits.TON = 1; // Start the 16 bit timer 2.
-    TMR3 = 0; // Clear timer 2 at the start.
+    uint16_t comparator_interrupt = 0;
+    uint16_t ADCvalue = 0;
     
-    /****** Start the current ******/
-    // 0.00uA => 0, 0.55uA => 1, 5.5uA => 2, 55uA => 3
-    CTMUinit(2);
+    /****** Drain the charge on the circuit ******/
+    CTMUCONbits.CTMUEN = 1;  // Turn on CTMU.
+    CTMUCONbits.IDISSEN = 1; // Drain charge on the circuit.
+    
+    /****** Delay for 260 ms ******/
+    delay_sec(1, 0);
+    ADCvalue = do_ADC();
+    start_voltage = (ADCvalue * 3.25/pow(2,10));
+    
+    /****** Use Timer 3 to measure comparator interrupt ******/
+    T3CONbits.TON = 1; // Start the 16 bit timer 3.
+    TMR3 = 0; // Clear timer 3 at the start.
+    
+    /****** Start the charge on the circuit ******/
     start_current();
+    CTMUCONbits.IDISSEN = 0; // End drain of circuit.
     
-    // 15625 represents 1 second on a 8MHz clock with 1:256 PreScaler.
-    while (TMR3 < 15625) {
+    // Check for comparator to interrupt within 6ms.
+    while(TMR3 <= 250) {
         // Check if interrupt occurred in comparator, method returns 1 meaning interrupt occurred, otherwise it returns 0.
         comparator_interrupt = check_interrupt();
-        
         // The timer is turned off, dT is measured, dV is 2V for CVRef set. 
         if (comparator_interrupt == 1) {
-            T3CONbits.TON = 0; // Stop the 16 bit timer 2.
-            dt = TMR3 * 512 / (8E6);
-            dv = 2.00;
+            pr3 = TMR3; // Conversion to float such that Hex values is not used.
+            
+            // The comparator interrupted too soon, let ADC handle the computation.
+            if (pr3 == 0) {
+                continue;
+            }
+            
+            stop_current(); // Stop the current.  
+            T3CONbits.TON = 0; // Stop the 16 bit Timer 3.
+
+            dt = pr3 * 512 / (8E6);
+            //final_voltage = 2.16;
+            ADCvalue = do_ADC();
+            final_voltage = (ADCvalue * 3.25/pow(2,10));
             break;
         }
     }
     
-    reset_interrupt();
-    
+    /****** Use ADC if comparator never interrupts ******/
     // Check if the Timer is on.
     if (T3CONbits.TON == 1) {
-        T3CONbits.TON = 0; // Stop the 16 bit timer 2.
+        pr3 = TMR3;
+        stop_current(); // Stop the current
+        T3CONbits.TON = 0; // Stop the 16 bit timer 3.
         
         // Retrieve ADC value for voltage, get dT from PR.
-        uint16_t ADCvalue = do_ADC();
-        dv = (ADCvalue * 3.25/pow(2,10));
-        dt = TMR3 * 512 / (8E6);
+        ADCvalue = do_ADC();
+        final_voltage = (ADCvalue * 3.25/pow(2,10));
+        dt = pr3 * 2 / (8E6);
+        
     }
     
-    // Stop the current
-    stop_current();
-    TMR3 = 0;
+    reset_interrupt(); // comparator interrupt is set back to 0.
+    TMR3 = 0; // Clear Timer 3
     
-    // Calculate capacitance
-    float capacitance = compute_capacitance(dv, 5.5E-6, dt);
+    /****** Find the capacitance ******/
+    dv = fabs(final_voltage - start_voltage);
+    di = 5.5E-6; // Preset in the CTMU.
+    capacitance = compute_capacitance(dv, di, dt);
+   
     capacitance /= 1E-6;
     dt /= 1E-3;
-    dv /= 1E-6;
     
-    Nop();
-    
-    Disp2String("\r Voltage: ");
-    Disp2Float(dv);
-    Disp2String("uV");
-    
-    Disp2String(" Time: ");
-    Disp2Float(dt);
-    Disp2String("ms");
-    
-    Disp2String(" Capacitance: ");
+    Disp2String("\r Capacitance: ");
     Disp2Float(capacitance);
-    Disp2String("uF\n\r");
+    Disp2String("uF\r");
     return;
 }
 
@@ -124,10 +146,7 @@ void CSense(void) {
  */
 void start_current(void) {
     // Start current
-    CTMUCONbits.IDISSEN = 0; // Analog current source output is not grounded.
-    // 10, or 01 for SW control of current source is turned on.
     CTMUCONbits.EDG1STAT = 1; // Edge 1 event has occurred.
-    CTMUCONbits.EDG2STAT = 0; // Edge 2 event has not occurred.
 }
 
 /**
@@ -136,9 +155,7 @@ void start_current(void) {
  */
 void stop_current(void) {
    // Stop current
-    CTMUCONbits.EDG1STAT = 1; 
-    CTMUCONbits.EDG2STAT = 1;  
-    CTMUCONbits.IDISSEN = 1; // Analog current source output is grounded.
+    CTMUCONbits.EDG1STAT = 0; 
 }
 
 /**
@@ -150,4 +167,14 @@ void stop_current(void) {
  */
 float compute_capacitance(float voltage, float current, float time) {
     return current * time/voltage;
+}
+
+/**
+ * This computes the resistance value.
+ * @param voltage The voltage drop across the resistor.
+ * @param current The current flowing through the resistor.
+ * @return The resistance value in Ohms across the resistor.
+ */
+float compute_resistance(float voltage, float current) {
+    return voltage/current;
 }

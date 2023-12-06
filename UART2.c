@@ -214,8 +214,8 @@ void Disp2Float(float float_num) {
     uint16_t whole_num = (uint16_t) float_num; 
     uint16_t remain = (float_num - whole_num) * 100; // Rounded to 2 decimal places.
     
-    while (ctr<2) {
-        quot = whole_num/(pow(10,(1-ctr)));
+    while (ctr<3) {
+        quot = whole_num/(pow(10,(2-ctr)));
         rem = quot%10;
         XmitUART2(rem + 0x30 , 1);
         ctr = ctr + 1;

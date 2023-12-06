@@ -73,9 +73,12 @@ extern "C" {
 #ifdef	__cplusplus
 }
 #endif /* __cplusplus */
+
 void configure_ADC_AD1CON1(void);
 void configure_ADC_AD1CON2(void);
 void configure_ADC_AD1CON3(void);
+void ADCinit(void);
 unsigned int do_ADC(void);
+
 #endif	/* XC_HEADER_TEMPLATE_H */
 
