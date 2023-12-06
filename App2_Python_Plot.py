@@ -10,18 +10,16 @@ Saves in csv
 Plots received data versus time
 
 @author: Rushi V
+
+Modified by John Santos and Anhela Francees
 """
 
+import plotly.express as px
+import pandas as pd
 import numpy as np
-import math 
-import csv
+import decimal
 import serial  # pip install pyserial
 import time
-import pandas as pd
-import plotly.express as px
-import decimal
-import matplotlib.pyplot as plt
-
 
 ## OPEN SERIAL PORT 
 ser = serial.Serial(port = "COM7", baudrate = 9600, bytesize = 8, timeout = 2, stopbits = serial.STOPBITS_ONE)
@@ -38,6 +36,7 @@ limit = 15
 while(time.time() - startTime < limit):  #record data for 1 sec
     
     time_now = time.time() - startTime
+    time_now = round(time_now, 2)
     print(f"Time {time_now} of {limit}", end="\r")
 
     line = ser.readline() # reads uint16_t nums as single bytes till \n n stores in string
@@ -49,6 +48,7 @@ while(time.time() - startTime < limit):  #record data for 1 sec
         line = line.replace("Capacitance:", "")
         line = line.replace("uF", "")
         line = line.replace("\x00", "")
+        line = line.replace("\x02\x02", "")
         
         capacitance = float(line)
         rxNumsList.append(capacitance)
@@ -61,11 +61,6 @@ while(time.time() - startTime < limit):  #record data for 1 sec
     
 ## CLOSE SERIAL PORT    
 ser.close()  # close any open serial ports
-
-
-# plt.plot(np.array(rxTimesList), np.array(rxNumsList))
-# plt.show()
-
 
 # ### Rx DATA CLEANUP AND STRING TO FLOAT CONVERSION
 # rxNumsStr = rxNumsStr.replace('\x00','')  #\x00 seems to be sent with Disp2String()
