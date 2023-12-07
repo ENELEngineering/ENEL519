@@ -67,12 +67,15 @@ void CSense(void) {
     uint16_t comparator_interrupt = 0;
     uint16_t ADCvalue = 0;
     
+    ADCinit();
+    CTMUinit(2);
+    CTMUCONbits.EDG1STAT = 0;  // Edge 1 Status bit event has occurred
+    CTMUCONbits.EDG2STAT = 0;  // Edge 1 Status bit event has occurred
     /****** Drain the charge on the circuit ******/
-    CTMUCONbits.CTMUEN = 1;  // Turn on CTMU.
     CTMUCONbits.IDISSEN = 1; // Drain charge on the circuit.
     
     /****** Delay for 1 second ******/
-    delay_sec(1, 0);
+    delay_ms(15, 0);
     ADCvalue = do_ADC();
     start_voltage = (ADCvalue * 3.25/pow(2,10));
     
@@ -81,11 +84,13 @@ void CSense(void) {
     TMR3 = 0; // Clear timer 3 at the start.
     
     /****** Start the charge on the circuit ******/
-    start_current();
+    //start_current();
+    CTMUCONbits.EDG1STAT = 1;  // Edge 1 Status bit event has occurred
+    CTMUCONbits.EDG1STAT = 0;  // Edge 1 Status bit event has occurred
     CTMUCONbits.IDISSEN = 0; // End drain of circuit.
     
-    // Check for comparator to interrupt within 62.5 us.
-    while(TMR3 <= 250) {
+    // Check for comparator to interrupt within 15ms.
+    while(TMR3 <= 60000) {
         // Check if interrupt occurred in comparator, method returns 1 meaning interrupt occurred, otherwise it returns 0.
         comparator_interrupt = check_interrupt();
         // The timer is turned off, dT is measured, dV is 2V for CVRef set. 
@@ -129,6 +134,8 @@ void CSense(void) {
     dv = fabs(final_voltage - start_voltage);
     di = 5.5E-6; // Preset in the CTMU.
     capacitance = compute_capacitance(dv, di, dt);
+    
+    Nop();
    
     capacitance = capacitance / 1E-6;
     dt /= 1E-3;

@@ -19,7 +19,7 @@ void __attribute__((interrupt, no_auto_psv)) _CompInterrupt(void) {
     CM2CONbits.COUT = 0;
     
     if (IFS1bits.CMIF == 1) {
-        delay_sec(1, 0); 
+        //delay_sec(1, 0); 
         if (CMSTATbits.C2OUT != previous_interrupt) {
             previous_interrupt = CMSTATbits.C2OUT;
             // CPOL is 1 which means CREF < C2INC.

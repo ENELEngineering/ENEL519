@@ -32,7 +32,7 @@ rxTimesList = []   #list to store time stamps of received uint16_t numbers
 startTime = time.time()   
 
 ## CAPTURE UART DATA
-limit = 15
+limit = 60
 while(time.time() - startTime < limit):  #record data for 1 sec
     
     time_now = time.time() - startTime

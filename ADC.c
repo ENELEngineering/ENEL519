@@ -15,7 +15,7 @@
  */
 void configure_ADC_AD1CON1(void) {
     AD1CON1bits.ADON = 1; // A/D converter module is operating for current.
-    //AD1CON1bits.ADSIDL = 0; // Continue module operation in idle mode.
+    AD1CON1bits.ADSIDL = 0; // Continue module operation in idle mode.
     AD1CON1bits.FORM = 0b00; // Data output format should be saved as an integer.
     AD1CON1bits.SSRC = 0b111; // Clearing SAMP bit ends sampling and starts conversion.
     AD1CON1bits.ASAM = 0; // Sampling begins when SAMP bit is set.
@@ -64,7 +64,7 @@ void ADCinit(void) {
     AD1CHSbits.CH0SA = 0b0101; // Channel 0 positive input is AN5.
     AD1PCFGbits.PCFG5 = 0; // Pin configured in Analog mode; I/O port read disabled; A/D samples pin voltage.
     AD1CSSL = 0; // Corresponding analog channel is selected for input scan.
-    //AD1CSSLbits.CSSL11 = 0; // Analog channel omitted from input scan.
+    //AD1CSSLbits.CSSL5 = 0; // Analog channel omitted from input scan.
     TRISAbits.TRISA3 = 1; // Analog pin to measure voltage is set as an input.
     //TRISBbits.TRISB13 = 1;
 }
@@ -81,7 +81,7 @@ unsigned int do_ADC(void) {
     AD1CON1bits.SAMP = 1; // A/D sample/hold amplifier is sampling input.
     //AD1CON1bits.DONE = 0; // A/D conversion is not done.
     while(AD1CON1bits.DONE==0) { 
-        delay_ms(1000, 0);
+        delay_ms(100, 0);
     }
     
     ADCvalue = ADC1BUF0; // ADC output is stored in ADC1BUF0 as this point. 

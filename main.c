@@ -8,6 +8,7 @@
  * December 5, 2023.
  */
 
+#include <libpic30.h>
 #include "xc.h"
 #include <p24fxxxx.h>
 #include <p24F16KA101.h>
@@ -20,6 +21,9 @@
 #include "ZSense.h"
 #include "comparator.h"
 #include "CTMU.h"
+#include "ADC.h"
+
+#define FCY 4000000UL
 
 //// CONFIGURATION BITS ////
 
@@ -91,19 +95,20 @@ int main(void) {
     // Switch clock: 32 for 32kHz, 500 for 500 kHz, 8 for 8MHz 
     SetClk(8); 
     
-    CNPD2bits.CN29PDE = 1;
+    //CNPD2bits.CN29PDE = 1;
     configure_timer_1();
     configure_timer_2();
     configure_timer_3();
     CVREFInit(2.16); // Output voltage at CVREF Pin 17
     ComparatorInit();
     // 0.00uA => 0, 0.55uA => 1, 5.5uA => 2, 55uA => 3
-    CTMUinit(2);
+    //CTMUinit(2);
     
     while(1) {
         CSense();
         //RSense();
         //Idle();  
+        
     }
     return 0;
 }
